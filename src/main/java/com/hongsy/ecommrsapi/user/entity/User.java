@@ -1,12 +1,16 @@
 package com.hongsy.ecommrsapi.user.entity;
 
+import com.hongsy.ecommrsapi.profile.entity.Profile;
 import com.hongsy.ecommrsapi.util.ListStringToJsonConverter;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,7 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "user")
+@Table(name = "site_user")
 @Getter
 @NoArgsConstructor
 public class User {
@@ -39,5 +43,8 @@ public class User {
 
     @Column(name = "purchase_count")
     private Integer purchaseCount;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Profile profile;
 
 }
