@@ -1,50 +1,58 @@
 package com.hongsy.ecommrsapi.user.entity;
 
-import com.hongsy.ecommrsapi.profile.entity.Profile;
-import com.hongsy.ecommrsapi.util.ListStringToJsonConverter;
-import jakarta.persistence.CascadeType;
+import com.hongsy.ecommrsapi.user.dto.UserRequestDto;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "site_user")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "total_purchase_price")
-    private BigDecimal totalPurchasePrice;
+    @Column(unique = true, nullable = false)
+    private String email;
+    @Column(nullable = false)
+    private String password;
+    private String name;
+    private Integer age;
 
-    @Column(name = "avg_purchase_price")
-    private BigDecimal avgPurchasePrice;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
-    @Column(name = "last_purchase_date")
-    private LocalDateTime lastPurchaseDate;
+    @Column(name = "phone_number")
+    private String phoneNumber;
+    @Column(columnDefinition = "TEXT")
+    private String address;
 
-    @Convert(converter = ListStringToJsonConverter.class)
-    @Column(name = "category", columnDefinition = "jsonb")
-    private List<String> preferredCategory;
+    public static User createUser(UserRequestDto userRequestDto, Gender gender, String password){
+        User user = User.builder()
+            .email(userRequestDto.getEmail())
+            .password(password)
+            .name(userRequestDto.getName())
+            .age(userRequestDto.getAge())
+            .gender(gender)
+            .phoneNumber(userRequestDto.getPhoneNumber())
+            .address(userRequestDto.getAddress())
+            .build();
 
-    @Column(name = "purchase_count")
-    private Integer purchaseCount;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Profile profile;
-
+        return user;
+    }
 }
