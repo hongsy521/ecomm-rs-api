@@ -7,18 +7,23 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
     private String secretKey;
+
+    private final UserDetailsService userDetailsService;
 
     // 로그인 후 토큰 생성
     public String creatAccessToken(Long userId){
@@ -74,14 +79,14 @@ public class JwtTokenProvider {
     }
 
     // 토큰에서 사용자 정보 추출
-    public String getUserId(String token) {
+    public String getUserIdToString(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
     // 토큰에서 인증 정보 조회
     public Authentication getAuthentication(String token) {
         // UserDetailsService를 통해 사용자 정보를 로드
-        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserId(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserIdToString(token));
 
         // Spring Security의 Authentication 객체 생성
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
