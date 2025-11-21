@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -40,13 +41,13 @@ public class UserService {
     public void createUser(SignupRequestDto signupRequestDto) {
         Optional<User> existingUser = userRepository.findByEmail(signupRequestDto.getEmail());
 
-        if(existingUser.isPresent()){
+        if (existingUser.isPresent()) {
             throw new CustomException(ErrorCode.EXISTING_USER);
         }
         Gender gender = Gender.genderFromKorean(signupRequestDto.getGender());
         Set<Role> roleSet = Role.roleFromKorean(signupRequestDto.getRoles());
         String encodePassword = passwordEncoder.encode(signupRequestDto.getPassword());
-        User user = User.createUser(signupRequestDto,gender,encodePassword,roleSet);
+        User user = User.createUser(signupRequestDto, gender, encodePassword, roleSet);
 
         userRepository.save(user);
 
@@ -79,11 +80,11 @@ public class UserService {
         refreshTokenRedisRepository.save(refreshToken);
         addRefreshTokenToCookie(refreshTokenString, response);
 
-        return accessToken;
+        return "Bearer " + accessToken;
     }
 
-    private void addRefreshTokenToCookie(String refreshToken, HttpServletResponse response){
-        Cookie cookie = new Cookie("refreshToken",refreshToken);
+    private void addRefreshTokenToCookie(String refreshToken, HttpServletResponse response) {
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
 
         cookie.setHttpOnly(true);
         cookie.setMaxAge(1209600);
