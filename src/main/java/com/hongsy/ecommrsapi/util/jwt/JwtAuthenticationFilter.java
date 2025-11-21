@@ -27,7 +27,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         // 토큰 유효성 검사
         if (token != null && jwtTokenProvider.validateToken(token)) {
 
-            // 토큰이 유효하면, Authentication 객체 생성
+            // 토큰이 유효할 경우 Authentication 객체 생성
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
 
             // SecurityContextHolder에 인증 정보 저장

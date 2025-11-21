@@ -2,8 +2,9 @@ package com.hongsy.ecommrsapi.util;
 
 import com.hongsy.ecommrsapi.user.entity.User;
 import java.util.Collection;
-import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class UserDetailsImpl implements UserDetails {
@@ -15,7 +16,9 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return user.getRoles().stream()
+            .map(roleEnum -> new SimpleGrantedAuthority(roleEnum.name()))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -26,5 +29,9 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public String getUsername() {
         return user.getEmail();
+    }
+
+    public Long getId(){
+        return user.getId();
     }
 }

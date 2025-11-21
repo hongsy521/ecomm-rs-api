@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,8 +27,9 @@ public class JwtTokenProvider {
     private final UserDetailsService userDetailsService;
 
     // 로그인 후 토큰 생성
-    public String creatAccessToken(Long userId){
+    public String createAccessToken(Long userId, List<String> roles){
         Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
+        claims.put("roles",roles);
         Date now = new Date();
 
         long accessTokenValidTime = 30 * 60 * 1000L; // 30분
@@ -41,7 +43,7 @@ public class JwtTokenProvider {
 
     }
 
-    public String creatRefreshToken(Long userId){
+    public String createRefreshToken(Long userId){
         Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
         Date now = new Date();
 
@@ -57,6 +59,10 @@ public class JwtTokenProvider {
             .signWith(SignatureAlgorithm.HS256, secretKey)
             .compact();
 
+    }
+
+    public String getJti(String refreshToken){
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(refreshToken).getBody().getId();
     }
 
     // 요청 헤더에서 토큰 추출
@@ -79,14 +85,14 @@ public class JwtTokenProvider {
     }
 
     // 토큰에서 사용자 정보 추출
-    public String getUserIdToString(String token) {
+    public String getStringUserId(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
     // 토큰에서 인증 정보 조회
     public Authentication getAuthentication(String token) {
         // UserDetailsService를 통해 사용자 정보를 로드
-        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserIdToString(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getStringUserId(token));
 
         // Spring Security의 Authentication 객체 생성
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());

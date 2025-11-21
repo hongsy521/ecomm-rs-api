@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
+@Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -16,11 +18,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Long userId=Long.valueOf(username);
+        User user;
 
-        User user = userRepository.findById(userId).orElseThrow(
-            ()->  new CustomException(ErrorCode.NON_EXISTENT_USER)
-        );
+        try {
+            // 토큰을 통한 사용자 정보 탐색시 userId 이용
+            Long userId = Long.valueOf(username);
+            user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+
+        } catch (NumberFormatException e) {
+            // 로그인 과정 중 사용자 정보 탐색시 email 이용
+            user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_USER));
+        }
 
         return new UserDetailsImpl(user);
     }
