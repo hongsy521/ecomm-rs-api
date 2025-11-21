@@ -1,6 +1,7 @@
 package com.hongsy.ecommrsapi.user.controller;
 
-import com.hongsy.ecommrsapi.user.dto.UserRequestDto;
+import com.hongsy.ecommrsapi.user.dto.LoginRequestDto;
+import com.hongsy.ecommrsapi.user.dto.SignupRequestDto;
 import com.hongsy.ecommrsapi.user.service.UserService;
 import com.hongsy.ecommrsapi.util.common.CommonResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse> createUser(@RequestBody UserRequestDto userRequestDto){
-        userService.createUser(userRequestDto);
+    public ResponseEntity<CommonResponse> createUser(@RequestBody SignupRequestDto signupRequestDto){
+        userService.createUser(signupRequestDto);
         return ResponseEntity.ok(new CommonResponse<>("회원가입이 완료되었습니다.",200,""));
     }
+
+    /*@PostMapping("/login")
+    public ResponseEntity<CommonResponse> login(@RequestBody LoginRequestDto loginRequestDto){
+        userService.login(loginRequestDto);
+        return ResponseEntity.ok(new CommonResponse<>("로그인이 완료되었습니다.",200,""));
+    }*/
 }

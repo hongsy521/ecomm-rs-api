@@ -1,14 +1,17 @@
 package com.hongsy.ecommrsapi.user.entity;
 
-import com.hongsy.ecommrsapi.user.dto.UserRequestDto;
+import com.hongsy.ecommrsapi.user.dto.SignupRequestDto;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,15 +45,20 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String address;
 
-    public static User createUser(UserRequestDto userRequestDto, Gender gender, String password){
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles;
+
+    public static User createUser(SignupRequestDto signupRequestDto, Gender gender, String password,Set<Role> roles){
         User user = User.builder()
-            .email(userRequestDto.getEmail())
+            .email(signupRequestDto.getEmail())
             .password(password)
-            .name(userRequestDto.getName())
-            .age(userRequestDto.getAge())
+            .name(signupRequestDto.getName())
+            .age(signupRequestDto.getAge())
             .gender(gender)
-            .phoneNumber(userRequestDto.getPhoneNumber())
-            .address(userRequestDto.getAddress())
+            .phoneNumber(signupRequestDto.getPhoneNumber())
+            .address(signupRequestDto.getAddress())
+            .roles(roles)
             .build();
 
         return user;

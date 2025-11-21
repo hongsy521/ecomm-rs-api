@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    /*private final JwtTokenProvider jwtTokenProvider;*/
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -30,15 +30,15 @@ public class SecurityConfig {
                 .requestMatchers("/api/user/signup").permitAll()
                 .anyRequest().authenticated()
             )
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable());
             // 세션 비활성화
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            /*.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
             // UsernamePasswordAuthenticationFilter 이전에 JWT 인증 필터를 실행
             .addFilterBefore(
                 new JwtAuthenticationFilter(jwtTokenProvider),
                 UsernamePasswordAuthenticationFilter.class
-            );
+            );*/
 
         return http.build();
     }

@@ -17,7 +17,7 @@ public enum Gender {
         return genderKorean;
     }
 
-    public static Gender fromKorean(String korean){
+    public static Gender genderFromKorean(String korean){
         if(korean==null){
             throw new CustomException(ErrorCode.NULL_GENDER);
         }
@@ -26,6 +26,6 @@ public enum Gender {
                 return gender;
             }
         }
-        throw new CustomException(ErrorCode.WRONG_GENDER);
+        throw new CustomException(ErrorCode.INVALID_GENDER);
     }
 }
