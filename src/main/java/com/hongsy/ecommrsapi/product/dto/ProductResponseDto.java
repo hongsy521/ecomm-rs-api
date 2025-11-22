@@ -18,6 +18,7 @@ public class ProductResponseDto {
     private Integer stockQuantity;
     private Long orderAmountFor30d;
     private Double avgReviewScore;
+    private Long sellerId;
 
     public ProductResponseDto(Product product) {
         this.id= product.getId();
@@ -31,5 +32,6 @@ public class ProductResponseDto {
         this.stockQuantity= product.getStockQuantity();
         this.orderAmountFor30d= product.getOrderAmountFor30d();
         this.avgReviewScore=product.getAvgReviewScore();
+        this.sellerId= product.getSellerId();
     }
 }

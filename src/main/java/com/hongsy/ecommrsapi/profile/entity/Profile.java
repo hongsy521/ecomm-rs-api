@@ -1,9 +1,8 @@
 package com.hongsy.ecommrsapi.profile.entity;
 
 import com.hongsy.ecommrsapi.user.entity.User;
-import com.hongsy.ecommrsapi.util.ListStringToJsonConverter;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -21,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "profile")
@@ -43,7 +43,7 @@ public class Profile {
     @Column(name = "last_purchase_date")
     private LocalDate lastPurchaseDate;
 
-    @Convert(converter = ListStringToJsonConverter.class)
+    @Type(JsonBinaryType.class)
     @Column(name = "category", columnDefinition = "jsonb")
     private List<String> preferredCategory;
 

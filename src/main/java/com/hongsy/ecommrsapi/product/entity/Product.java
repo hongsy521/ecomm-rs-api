@@ -2,9 +2,8 @@ package com.hongsy.ecommrsapi.product.entity;
 
 import com.hongsy.ecommrsapi.product.dto.RegisterProductRequestDto;
 import com.hongsy.ecommrsapi.user.entity.User;
-import com.hongsy.ecommrsapi.util.ListStringToJsonConverter;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -20,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "product")
@@ -46,7 +46,7 @@ public class Product {
     @Column(name = "color_group")
     private String colorGroup;
 
-    @Convert(converter = ListStringToJsonConverter.class)
+    @Type(JsonBinaryType.class)
     @Column(name = "tags", columnDefinition = "jsonb")
     private List<String> tags;
 
