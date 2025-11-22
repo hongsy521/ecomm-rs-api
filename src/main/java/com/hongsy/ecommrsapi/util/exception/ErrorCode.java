@@ -13,7 +13,10 @@ public enum ErrorCode {
     INVALID_ROLE(HttpStatus.BAD_REQUEST,"유효하지 않은 역할 입니다."),
     INVALID_GENDER(HttpStatus.BAD_REQUEST,"유효하지 않은 성별 입니다."),
     EXISTING_USER(HttpStatus.BAD_REQUEST,"이미 가입된 사용자 입니다."),
-    NOT_FOUND_USER(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다.");
+    NOT_FOUND_USER(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다."),
+    NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND,"상품을 찾을 수 없습니다."),
+    INCORRECT_SELLER(HttpStatus.FORBIDDEN,"판매자가 일치하지 않습니다."),
+    INVALID_NUMBER(HttpStatus.BAD_REQUEST,"0 이상의 숫자를 입력해주세요.");
 
     private final HttpStatus status;
     private final String message;

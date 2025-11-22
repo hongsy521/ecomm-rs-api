@@ -1,7 +1,9 @@
 package com.hongsy.ecommrsapi.product.entity;
 
-import com.hongsy.ecommrsapi.product.dto.RegisterProductRequestDto;
+import com.hongsy.ecommrsapi.product.dto.ProductRequestDto;
 import com.hongsy.ecommrsapi.user.entity.User;
+import com.hongsy.ecommrsapi.util.exception.CustomException;
+import com.hongsy.ecommrsapi.util.exception.ErrorCode;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -66,7 +68,7 @@ public class Product {
     @JoinColumn(name = "seller_id", insertable = false, updatable = false)
     private User seller;
 
-    public static Product registerProduct(Long sellerId, RegisterProductRequestDto requestDto){
+    public static Product registerProduct(Long sellerId, ProductRequestDto requestDto){
         Product product = Product.builder()
             .name(requestDto.getName())
             .brandName(requestDto.getBrandName())
@@ -82,5 +84,19 @@ public class Product {
             .build();
 
         return product;
+    }
+
+    public void editProduct(ProductRequestDto requestDto) {
+        if(requestDto.getPrice().compareTo(BigDecimal.ZERO)<0 || requestDto.getStockQuantity().compareTo(0)<0){
+            throw new CustomException(ErrorCode.INVALID_NUMBER);
+        }
+        this.name=requestDto.getName();
+        this.brandName= requestDto.getBrandName();
+        this.info= requestDto.getInfo();
+        this.price=requestDto.getPrice();
+        this.image= requestDto.getImage();
+        this.colorGroup=requestDto.getColorGroup();
+        this.tags=requestDto.getTags();
+        this.stockQuantity= requestDto.getStockQuantity();
     }
 }

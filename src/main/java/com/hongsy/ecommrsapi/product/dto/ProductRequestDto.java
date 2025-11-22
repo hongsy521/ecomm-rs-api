@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Getter;
 
 @Getter
-public class RegisterProductRequestDto {
+public class ProductRequestDto {
     private String name;
     private String brandName;
     private String info;
