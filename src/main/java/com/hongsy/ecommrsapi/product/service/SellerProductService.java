@@ -10,6 +10,9 @@ import com.hongsy.ecommrsapi.util.exception.ErrorCode;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,10 +55,11 @@ public class SellerProductService {
         productRepository.delete(product);
     }
 
-    public List<ProductResponseDto> getProductsBySeller(Long sellerId) {
-        List<Product> products = productRepository.findAllBySellerId(sellerId);
+    public Page<ProductResponseDto> getProductsBySeller(Long sellerId, int page, int size) {
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Product> products = productRepository.findAllBySellerId(sellerId,pageable);
 
-        return products.stream().map(ProductResponseDto::new).collect(Collectors.toList());
+        return products.map(ProductResponseDto::new);
 
     }
 }
