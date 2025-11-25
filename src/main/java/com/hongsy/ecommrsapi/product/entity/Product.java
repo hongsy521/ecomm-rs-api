@@ -2,6 +2,7 @@ package com.hongsy.ecommrsapi.product.entity;
 
 import com.hongsy.ecommrsapi.product.dto.ProductRequestDto;
 import com.hongsy.ecommrsapi.user.entity.User;
+import com.hongsy.ecommrsapi.util.common.BaseTimeEntity;
 import com.hongsy.ecommrsapi.util.exception.CustomException;
 import com.hongsy.ecommrsapi.util.exception.ErrorCode;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
@@ -29,7 +30,7 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class Product {
+public class Product extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
