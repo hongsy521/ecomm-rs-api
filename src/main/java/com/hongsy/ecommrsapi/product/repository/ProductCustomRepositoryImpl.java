@@ -1,13 +1,15 @@
 package com.hongsy.ecommrsapi.product.repository;
 
-import com.hongsy.ecommrsapi.product.entity.Product;
 import static com.hongsy.ecommrsapi.product.entity.QProduct.product;
 
+import com.hongsy.ecommrsapi.product.dto.SearchRequestDto;
+import com.hongsy.ecommrsapi.product.entity.Product;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 @Repository
 @RequiredArgsConstructor
@@ -16,20 +18,29 @@ public class ProductCustomRepositoryImpl implements
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Product> findProductsBySearchCondition() {
-        return List.of();
-    }
-
-    @Override
-    public List<Product> findProductsByKeyword(String keyword) {
+    public List<Product> findProductsBySearchCondition(SearchRequestDto requestDto) {
         BooleanBuilder builder = new BooleanBuilder();
 
-        builder.or(product.name.contains(keyword));
-        builder.or(product.brandName.contains(keyword));
-        builder.or(product.info.contains(keyword));
-        builder.or(product.colorGroup.contains(keyword));
+        // 재고 0 이상
+        builder.and(product.stockQuantity.gt(0));
 
-        return jpaQueryFactory.selectFrom(product)
-            .where(builder).fetch();
+        // 가격 범위 조건
+        if(requestDto.getMinPrice()!=null&&requestDto.getMaxPrice()!=null){
+            builder.and(product.price.between(requestDto.getMinPrice(),requestDto.getMaxPrice()));
+        }
+
+        // 키워드 포함
+        if(StringUtils.hasText(requestDto.getKeyword())){
+            BooleanBuilder keywordOr = new BooleanBuilder();
+            keywordOr.or(product.name.contains(requestDto.getKeyword()));
+            keywordOr.or(product.brandName.contains(requestDto.getKeyword()));
+            keywordOr.or(product.info.contains(requestDto.getKeyword()));
+            keywordOr.or(product.colorGroup.contains(requestDto.getKeyword()));
+
+            builder.and(keywordOr);
+        }
+
+        return jpaQueryFactory.selectFrom(product).where(builder).fetch();
     }
+
 }
