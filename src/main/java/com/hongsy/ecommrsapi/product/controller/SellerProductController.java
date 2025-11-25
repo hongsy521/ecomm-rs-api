@@ -1,11 +1,12 @@
 package com.hongsy.ecommrsapi.product.controller;
 
-import com.hongsy.ecommrsapi.product.dto.ProductResponseDto;
 import com.hongsy.ecommrsapi.product.dto.ProductRequestDto;
+import com.hongsy.ecommrsapi.product.dto.ProductResponseDto;
 import com.hongsy.ecommrsapi.product.service.SellerProductService;
 import com.hongsy.ecommrsapi.util.UserDetailsImpl;
 import com.hongsy.ecommrsapi.util.common.CommonResponse;
-import java.util.List;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Seller Product API", description = "판매자 상품 API")
 @RequestMapping("/api/seller/product")
 @RestController
 @RequiredArgsConstructor
@@ -27,24 +29,28 @@ public class SellerProductController {
 
     private final SellerProductService sellerProductService;
 
+    @Operation(summary = "판매자 - 상품 등록")
     @PostMapping("/register")
     public ResponseEntity<CommonResponse<ProductResponseDto>> registerProduct(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody ProductRequestDto requestDto){
         ProductResponseDto productResponseDto = sellerProductService.registerProduct(userDetails.getId(),requestDto);
         return ResponseEntity.ok(new CommonResponse("상품 등록이 완료되었습니다.",200,productResponseDto));
     }
 
+    @Operation(summary = "판매자 - 상품 편집")
     @PutMapping("/edit/{productId}")
     public ResponseEntity<CommonResponse<ProductResponseDto>> editProduct(@AuthenticationPrincipal UserDetailsImpl userDetails,@PathVariable(name = "productId")Long productId,@RequestBody ProductRequestDto requestDto){
         ProductResponseDto productResponseDto = sellerProductService.editProduct(userDetails.getId(),productId,requestDto);
         return ResponseEntity.ok(new CommonResponse<>("상품 편집이 완료되었습니다.",200,productResponseDto));
     }
 
+    @Operation(summary = "판매자 - 상품 삭제")
     @DeleteMapping("/delete/{productId}")
     public ResponseEntity<CommonResponse> deleteProduct(@AuthenticationPrincipal UserDetailsImpl userDetails,@PathVariable(name = "productId")Long productId){
         sellerProductService.deleteProduct(userDetails.getId(),productId);
         return ResponseEntity.ok(new CommonResponse("상품 삭제가 완료되었습니다.",200,""));
     }
 
+    @Operation(summary = "판매자 - 전체 상품 조회")
     @GetMapping("/all")
     public ResponseEntity<CommonResponse<Page<ProductResponseDto>>> getAllProductOfSeller(@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "8")int size){
         Page<ProductResponseDto> productResponseDtos = sellerProductService.getProductsBySeller(userDetails.getId(),page-1,size);

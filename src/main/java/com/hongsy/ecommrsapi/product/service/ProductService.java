@@ -29,4 +29,10 @@ public class ProductService {
 
         return new ProductResponseDto(product);
     }
+
+    public List<SimpleProductResponseDto> getProductsByKeyword(String keyword) {
+        List<Product> products = productRepository.findProductsByKeyword(keyword);
+
+        return products.stream().map(SimpleProductResponseDto::new).collect(Collectors.toList());
+    }
 }
