@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +32,12 @@ public class ProductService {
     }
 
     public List<SimpleProductResponseDto> getProductsByKeyword(String keyword) {
-        List<Product> products = productRepository.findProductsByKeyword(keyword);
+        List<Product> products;
+        if(StringUtils.hasText(keyword)){
+            products = productRepository.findProductsByKeyword(keyword);
+        } else {
+            products = productRepository.findAll();
+        }
 
         return products.stream().map(SimpleProductResponseDto::new).collect(Collectors.toList());
     }

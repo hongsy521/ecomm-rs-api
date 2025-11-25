@@ -22,13 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
     private final ProductService productService;
 
-    @Operation(summary = "일반 사용자 - 전체 상품 조회")
-    @GetMapping("/all")
-    ResponseEntity<CommonResponse<List<SimpleProductResponseDto>>> getProducts(){
-        List<SimpleProductResponseDto> productResponseDtos = productService.getProducts();
-        return ResponseEntity.ok(new CommonResponse<>("전체 상품 조회가 완료되었습니다.",200,productResponseDtos));
-    }
-
     @Operation(summary = "일반 사용자 - 단건 상품 조회")
     @GetMapping("/{productId}")
     ResponseEntity<CommonResponse<ProductResponseDto>> getProduct(@PathVariable(name = "productId")Long productId){
@@ -36,11 +29,11 @@ public class ProductController {
         return ResponseEntity.ok(new CommonResponse<>("단건 상품 조회가 완료되었습니다.",200,productResponseDto));
     }
 
-    @Operation(summary = "일반 사용자 - 상품 검색")
+    @Operation(summary = "일반 사용자 - 상품 전체 조회 및 키워드 검색 조회")
     @GetMapping
-    ResponseEntity<CommonResponse<List<SimpleProductResponseDto>>> getProductsByKeyword(@RequestParam String keyword){
+    ResponseEntity<CommonResponse<List<SimpleProductResponseDto>>> getProductsByKeyword(@RequestParam(required = false) String keyword){
         List<SimpleProductResponseDto> productResponseDtos = productService.getProductsByKeyword(keyword);
-        return ResponseEntity.ok(new CommonResponse<>("키워드 검색을 통한 상품 조회가 완료되었습니다.",200,productResponseDtos));
+        return ResponseEntity.ok(new CommonResponse<>("상품 조회가 완료되었습니다.",200,productResponseDtos));
     }
 
 }
