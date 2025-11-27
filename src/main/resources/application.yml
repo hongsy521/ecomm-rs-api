@@ -18,6 +18,11 @@ spring:
       hibernate:
         format_sql: true
 
+  elasticsearch:
+    client:
+      rest:
+        uris: ${SPRING_ELASTICSEARCH_URIS}
+
 ---
 
 data:
@@ -33,13 +38,6 @@ data:
 
 session:
   store-type: redis
-
----
-
-elasticsearch:
-  client:
-    rest:
-      uris: ${SPRING_ELASTICSEARCH_URIS}
 
 ---
 
