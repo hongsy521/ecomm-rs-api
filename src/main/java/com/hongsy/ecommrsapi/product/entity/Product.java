@@ -85,6 +85,7 @@ public class Product extends BaseTimeEntity {
             .stockQuantity(requestDto.getStockQuantity())
             .avgReviewScore(0.0)
             .sellerId(sellerId)
+            .likeCount(0)
             .build();
 
         return product;

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,12 @@ public class ProductService {
         List<Product> products = productRepository.findProductsBySearchCondition(searchRequestDto);
 
         return products.stream().map(SimpleProductResponseDto::new).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void synchronizeLikeCounts(){
+        productRepository.bulkUpdateLikeCounts();
+        productRepository.bulkResetZeroLikeCounts();
     }
 
     public Product findById(Long productId){
