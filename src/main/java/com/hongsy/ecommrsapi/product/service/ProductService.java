@@ -31,4 +31,10 @@ public class ProductService {
         return products.stream().map(SimpleProductResponseDto::new).collect(Collectors.toList());
     }
 
+    public Product findById(Long productId){
+        return productRepository.findById(productId).orElseThrow(
+            ()-> new CustomException(ErrorCode.NOT_FOUND_PRODUCT)
+        );
+    }
+
 }

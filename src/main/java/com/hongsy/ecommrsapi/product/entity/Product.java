@@ -69,6 +69,9 @@ public class Product extends BaseTimeEntity {
     @JoinColumn(name = "seller_id", insertable = false, updatable = false)
     private User seller;
 
+    @Column(name = "like_count")
+    private Integer likeCount;
+
     public static Product registerProduct(Long sellerId, ProductRequestDto requestDto){
         Product product = Product.builder()
             .name(requestDto.getName())
