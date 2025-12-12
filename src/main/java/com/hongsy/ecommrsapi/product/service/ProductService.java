@@ -34,8 +34,15 @@ public class ProductService {
 
     @Transactional
     public void synchronizeLikeCounts(){
-        productRepository.bulkUpdateLikeCounts();
-        productRepository.bulkResetZeroLikeCounts();
+        long startTime = System.currentTimeMillis();
+
+        int updatedCount = productRepository.bulkUpdateLikeCounts();
+        int resetCount = productRepository.bulkResetZeroLikeCounts();
+
+        long duration = System.currentTimeMillis() - startTime;
+
+        System.out.printf("[Scheduler] 좋아요 동기화 완료 (업데이트: %d건, 초기화: %d건). 소요 시간: %dms\n",
+            updatedCount, resetCount, duration);
     }
 
     public Product findById(Long productId){
