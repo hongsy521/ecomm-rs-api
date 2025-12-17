@@ -1,14 +1,11 @@
 package com.hongsy.ecommrsapi.product.service;
 
-import com.hongsy.ecommrsapi.product.dto.ProductResponseDto;
 import com.hongsy.ecommrsapi.product.dto.ProductRequestDto;
+import com.hongsy.ecommrsapi.product.dto.ProductResponseDto;
 import com.hongsy.ecommrsapi.product.entity.Product;
 import com.hongsy.ecommrsapi.product.repository.ProductRepository;
-import com.hongsy.ecommrsapi.util.UserDetailsImpl;
 import com.hongsy.ecommrsapi.util.exception.CustomException;
 import com.hongsy.ecommrsapi.util.exception.ErrorCode;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
