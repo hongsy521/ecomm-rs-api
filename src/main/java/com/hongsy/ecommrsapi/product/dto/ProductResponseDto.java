@@ -3,9 +3,13 @@ package com.hongsy.ecommrsapi.product.dto;
 import com.hongsy.ecommrsapi.product.entity.Product;
 import java.math.BigDecimal;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
+@AllArgsConstructor
 public class ProductResponseDto {
     private Long id;
     private String name;
