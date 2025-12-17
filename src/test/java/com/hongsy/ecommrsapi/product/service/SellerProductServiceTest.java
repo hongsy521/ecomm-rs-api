@@ -22,6 +22,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class SellerProductServiceTest {
@@ -221,6 +225,33 @@ class SellerProductServiceTest {
 
         verify(productRepository,times(1)).findById(productId);
         verify(productRepository,times(0)).delete(any(Product.class));
+    }
+
+    @Test
+    @DisplayName("판매자 상품 조회 성공 테스트")
+    void testGetProductsBySeller(){
+        Long sellerId=24L;
+        int page=0;
+        int size=10;
+        Pageable pageable = PageRequest.of(page,size);
+
+        Product product1 = Product.builder().name("상품1").build();
+        Product product2 = Product.builder().name("상품2").build();
+        List<Product> productList = List.of(product1,product2);
+
+        Page<Product> mockProductPage = new PageImpl<>(productList,pageable,productList.size());
+
+        given(productRepository.findAllBySellerId(sellerId,pageable)).willReturn(mockProductPage);
+
+        Page<ProductResponseDto> responseDtos = sellerProductService.getProductsBySeller(sellerId,page,size);
+
+        assertThat(responseDtos).isNotNull();
+        assertThat(responseDtos.getTotalElements()).isEqualTo(2);
+        assertThat(responseDtos.getContent()).hasSize(2);
+        assertThat(responseDtos.getContent().get(0).getName()).isEqualTo("상품1");
+        assertThat(responseDtos.getContent().get(1).getName()).isEqualTo("상품2");
+
+        verify(productRepository,times(1)).findAllBySellerId(sellerId,pageable);
     }
 
 }
