@@ -124,7 +124,7 @@ class SellerProductServiceTest {
 
     @Test
     @DisplayName("상품 수정 실패 테스트 : 상품 아이디가 존재하지 않는 경우 NOT_FOUND_PRODUCT 예외 발생 확인")
-    void testEditProductNotFound(){
+    void testEditNotFoundProduct(){
         Long sellerId=24L;
         Long nonExistingProductId=25L;
 
@@ -162,6 +162,65 @@ class SellerProductServiceTest {
 
         verify(productRepository,times(1)).findById(productId);
         verify(productRepository,times(0)).save(any(Product.class));
+    }
+
+    @Test
+    @DisplayName("상품 삭제 성공 테스트 : 상품 삭제 확인")
+    void testDeleteProductSuccess(){
+        Long sellerId=24L;
+        Long productId=25L;
+
+        Product mockProduct = Product.builder()
+            .id(productId)
+            .sellerId(sellerId)
+            .build();
+
+        given(productRepository.findById(productId)).willReturn(Optional.of(mockProduct));
+
+        sellerProductService.deleteProduct(sellerId,productId);
+
+        verify(productRepository,times(1)).findById(productId);
+        verify(productRepository,times(1)).delete(any(Product.class));
+
+
+    }
+
+    @Test
+    @DisplayName("상품 삭제 실패 테스트 : 상품 아이디가 존재하지 않는 경우 NOT_FOUND_PRODUCT 예외 발생 확인")
+    void testDeleteNotFoundProduct(){
+        Long sellerId=24L;
+        Long nonExistingProductId=25L;
+
+        given(productRepository.findById(nonExistingProductId)).willReturn(Optional.empty());
+
+        CustomException exception = assertThrows(CustomException.class,()->sellerProductService.deleteProduct(sellerId,nonExistingProductId));
+
+        assertThat(exception.getMessage()).isEqualTo("상품을 찾을 수 없습니다.");
+
+        verify(productRepository,times(1)).findById(nonExistingProductId);
+        verify(productRepository,times(0)).delete(any(Product.class));
+    }
+
+    @Test
+    @DisplayName("상품 삭제 실패 테스트 : 상품의 소유자가 아닌 경우 INCORRECT_SELLER 예외 발생 확인")
+    void testDeleteProductIncorrectSeller(){
+        Long sellerId=24L;
+        Long incorrectSellerId=23L;
+        Long productId=25L;
+
+        Product mockProduct = Product.builder()
+            .id(productId)
+            .sellerId(sellerId)
+            .build();
+
+        given(productRepository.findById(productId)).willReturn(Optional.of(mockProduct));
+
+        CustomException exception = assertThrows(CustomException.class,()->sellerProductService.deleteProduct(incorrectSellerId,productId));
+
+        assertThat(exception.getMessage()).isEqualTo("판매자가 일치하지 않습니다.");
+
+        verify(productRepository,times(1)).findById(productId);
+        verify(productRepository,times(0)).delete(any(Product.class));
     }
 
 }
