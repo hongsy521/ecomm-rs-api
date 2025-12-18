@@ -34,6 +34,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation "org.testcontainers:postgresql:1.19.0"
+    testImplementation "org.testcontainers:junit-jupiter:1.19.0"
 
     // 데이터베이스 및 저장소
     runtimeOnly 'org.postgresql:postgresql'

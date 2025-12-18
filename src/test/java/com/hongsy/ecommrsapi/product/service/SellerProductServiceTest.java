@@ -2,8 +2,8 @@ package com.hongsy.ecommrsapi.product.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -12,7 +12,6 @@ import com.hongsy.ecommrsapi.product.dto.ProductResponseDto;
 import com.hongsy.ecommrsapi.product.entity.Product;
 import com.hongsy.ecommrsapi.product.repository.ProductRepository;
 import com.hongsy.ecommrsapi.util.exception.CustomException;
-import com.hongsy.ecommrsapi.util.exception.ErrorCode;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
