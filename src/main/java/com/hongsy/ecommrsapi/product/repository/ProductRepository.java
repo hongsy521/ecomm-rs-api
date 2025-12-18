@@ -10,27 +10,26 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product,Long>,ProductCustomRepository {
+public interface ProductRepository extends JpaRepository<Product, Long>, ProductCustomRepository {
 
     Page<Product> findAllBySellerId(Long sellerId, Pageable pageable);
 
     @Modifying
     @Transactional
     @Query(value = """
-            UPDATE Product p set p.likeCount=(
-            select count(pl.id) from ProductLike pl where p.id=pl.product.id group by pl.product.id
-            ) where p.id in (
-            select distinct pl.product.id from ProductLike pl
-            )""",nativeQuery = true)
+        UPDATE product p set like_count=(
+        select count(pl.id) from product_like pl where p.id=pl.product_id group by pl.product_id
+        ) where p.id in (
+        select distinct pl.product_id from product_like pl
+        )""", nativeQuery = true)
     Integer bulkUpdateLikeCounts();
 
     @Modifying
     @Transactional
     @Query(value = """
-        update Product p set
-        p.likeCount=0 where p.likeCount>0 and p.id not in (
-        select distinct pl.product.id from ProductLike pl
-        )
-""",nativeQuery = true)
+                update product p set like_count=0 where p.like_count>0 and p.id not in (
+                select distinct pl.product_id from product_like pl
+                )
+        """, nativeQuery = true)
     Integer bulkResetZeroLikeCounts();
 }
