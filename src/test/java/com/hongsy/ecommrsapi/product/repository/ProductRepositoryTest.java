@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Transactional
+@DisplayName("ProductRepository 슬라이스 테스트")
 class ProductRepositoryTest extends AbstractIntegrationTest {
     @Autowired
     private ProductRepository productRepository;

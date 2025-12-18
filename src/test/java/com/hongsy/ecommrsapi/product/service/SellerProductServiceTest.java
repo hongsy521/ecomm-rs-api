@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("SellerProductService 단위 테스트")
 class SellerProductServiceTest {
 
     @Mock

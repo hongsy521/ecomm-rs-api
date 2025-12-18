@@ -1,7 +1,11 @@
 package com.hongsy.ecommrsapi.security;
 
+import com.hongsy.ecommrsapi.user.entity.Role;
+import com.hongsy.ecommrsapi.user.entity.User;
+import com.hongsy.ecommrsapi.util.UserDetailsImpl;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,18 +18,25 @@ public class WithMockCustomUserSecurityContextFactory implements
     public SecurityContext createSecurityContext(WithMockCustomUser customUser) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
 
-        List<String> roles = Arrays.asList(customUser.roles());
-        MockUserPrincipal principal = new MockUserPrincipal(
-            customUser.id(),
-            customUser.username(),
-            roles
-        );
+        Set<String> roleNames = Arrays.stream(customUser.roles()).collect(Collectors.toSet());
+
+        User mockUser = User.builder()
+            .id(customUser.id())
+            .name(customUser.username())
+            .email("mock@test.com")
+            .password("mockuser123")
+            .roles(Role.roleFromKorean(roleNames))
+            .build();
+
+        UserDetailsImpl principal = new UserDetailsImpl(mockUser);
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
             principal,
             principal.getPassword(),
             principal.getAuthorities()
         );
+
+        System.out.println("권한 : "+auth.getAuthorities());
 
         context.setAuthentication(auth);
 
