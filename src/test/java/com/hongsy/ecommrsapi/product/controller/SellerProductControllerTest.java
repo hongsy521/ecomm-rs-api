@@ -7,6 +7,8 @@ import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.verify;
 import static org.mockito.Mockito.never;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -21,12 +23,17 @@ import com.hongsy.ecommrsapi.security.WithMockCustomUser;
 import com.hongsy.ecommrsapi.util.config.SecurityConfig;
 import com.hongsy.ecommrsapi.util.jwt.JwtTokenProvider;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -170,24 +177,27 @@ class SellerProductControllerTest {
             .stockQuantity(300)
             .build();
 
-        given(sellerProductService.editProduct(eq(1L), eq(productId), any(ProductRequestDto.class))).willReturn(
+        given(sellerProductService.editProduct(eq(1L), eq(productId),
+            any(ProductRequestDto.class))).willReturn(
             responseDto);
 
         mockMvc.perform(
-                put("/api/seller/product/edit/{productId}",productId).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                put("/api/seller/product/edit/{productId}", productId).with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(editRequestDto))).andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value("상품 편집이 완료되었습니다."))
             .andExpect(jsonPath("$.result.colorGroup").value("밝은"));
 
-        verify(sellerProductService,times(1)).editProduct(eq(1L),eq(productId),any(ProductRequestDto.class));
+        verify(sellerProductService, times(1)).editProduct(eq(1L), eq(productId),
+            any(ProductRequestDto.class));
     }
 
     @Test
-    @WithMockCustomUser(id = 1L,roles = {"판매자"})
+    @WithMockCustomUser(id = 1L, roles = {"판매자"})
     @DisplayName("T2-(2). 판매자 상품 수정 실패 테스트 - 상품명이 비어있는 경우 400 Bad Request를 반환하고 서비스를 호출하지 않는다.")
-    void editProduct_ShouldFail_WhenRequestIsInvalid() throws Exception{
+    void editProduct_ShouldFail_WhenRequestIsInvalid() throws Exception {
         Long productId = 25L;
 
         ProductRequestDto invalidRequestDto = ProductRequestDto.builder()
@@ -202,7 +212,7 @@ class SellerProductControllerTest {
             .build();
 
         // when
-        mockMvc.perform(put("/api/seller/product/edit/{productId}",productId).with(csrf())
+        mockMvc.perform(put("/api/seller/product/edit/{productId}", productId).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidRequestDto)))
             .andDo(print())
@@ -210,31 +220,130 @@ class SellerProductControllerTest {
             .andExpect(status().isBadRequest());
 
         // then
-        verify(sellerProductService, never()).editProduct(eq(1L), eq(productId),any(ProductRequestDto.class));
+        verify(sellerProductService, never()).editProduct(eq(1L), eq(productId),
+            any(ProductRequestDto.class));
     }
 
     @Test
     @WithMockCustomUser(id = 1L, roles = {"구매자"})
     @DisplayName("T2-(3). 판매자 상품 수정 실패 테스트 - 판매자 권한을 갖지 않은 경우 403 Forbidden를 반환하고 서비스를 호출하지 않는다.")
     void editProduct_ShouldFail_WhenRoleIsInvalid() throws Exception {
-        Long productId=25L;
+        Long productId = 25L;
 
-        mockMvc.perform(put("/api/seller/product/edit/{productId}",productId).with(csrf())).andDo(print())
+        mockMvc.perform(put("/api/seller/product/edit/{productId}", productId).with(csrf()))
+            .andDo(print())
             .andExpect(status().isForbidden());
 
-        verify(sellerProductService, never()).editProduct(eq(1L), eq(productId),any(ProductRequestDto.class));
+        verify(sellerProductService, never()).editProduct(eq(1L), eq(productId),
+            any(ProductRequestDto.class));
     }
 
     @Test
-    @WithMockCustomUser(id = 1L,roles = {"판매자"})
+    @WithMockCustomUser(id = 1L, roles = {"판매자"})
     @DisplayName("T2-(4). 판매자 상품 수정 실패 테스트 - 잘못된 productId를 넘긴 경우 400 Bad Request를 반환하고 서비스를 호출하지 않는다.")
-    void editProduct_ShouldFail_WhenIdIsNegative()throws Exception{
-        Long invalidProductId=-999L;
+    void editProduct_ShouldFail_WhenIdIsNegative() throws Exception {
+        Long invalidProductId = -999L;
 
-        mockMvc.perform(put("/api/seller/product/edit/{invalidProductId}",invalidProductId).with(csrf())).andDo(print())
+        mockMvc.perform(
+                put("/api/seller/product/edit/{invalidProductId}", invalidProductId).with(csrf()))
+            .andDo(print())
             .andExpect(status().isBadRequest());
 
-        verify(sellerProductService, never()).editProduct(eq(1L), eq(invalidProductId),any(ProductRequestDto.class));
+        verify(sellerProductService, never()).editProduct(eq(1L), eq(invalidProductId),
+            any(ProductRequestDto.class));
+    }
+
+    @Test
+    @WithMockCustomUser(id = 1L, roles = {"판매자"})
+    @DisplayName("T3-(1). 판매자 상품 삭제 성공 테스트 - 상품 삭제를 완료하고 200 OK를 반환한다.")
+    void deleteProduct_ShouldSuccess() throws Exception {
+        Long productId = 25L;
+        mockMvc.perform(delete("/api/seller/product/delete/{productId}", productId).with(csrf()))
+            .andDo(print()).andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("상품 삭제가 완료되었습니다."));
+
+        verify(sellerProductService, times(1)).deleteProduct(eq(1L), eq(productId));
+    }
+
+    @Test
+    @WithMockCustomUser(id = 1L, roles = {"판매자"})
+    @DisplayName("T3-(2). 판매자 상품 삭제 실패 테스트 - 잘못된 productId를 넘긴 경우 400 Bad Request를 반환하고 서비스를 호출하지 않는다.")
+    void deleteProduct_ShouldFail_WhenIdIsNegative() throws Exception {
+        Long invalidProductId = -999L;
+
+        mockMvc.perform(
+                delete("/api/seller/product/delete/{invalidProductId}", invalidProductId).with(csrf()))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+
+        verify(sellerProductService, never()).deleteProduct(eq(1L), eq(invalidProductId));
+    }
+
+    @Test
+    @WithMockCustomUser(id = 1L, roles = {"구매자"})
+    @DisplayName("T3-(3). 판매자 상품 삭제 실패 테스트 - 판매자 권한을 갖지 않은 경우 403 Forbidden를 반환하고 서비스를 호출하지 않는다.")
+    void deleteProduct_ShouldFail_WhenRoleIsInvalid() throws Exception {
+        Long productId = 25L;
+
+        mockMvc.perform(delete("/api/seller/product/delete/{productId}", productId).with(csrf()))
+            .andDo(print())
+            .andExpect(status().isForbidden());
+
+        verify(sellerProductService, never()).deleteProduct(eq(1L), eq(productId));
+    }
+
+    @Test
+    @WithMockCustomUser(id = 1L, roles = {"판매자"})
+    @DisplayName("T4-(1). 판매자 상품 조회 성공 테스트 - 조회된 모든 상품과 200 OK를 반환한다.")
+    void getAllProductOfSeller_ShouldSuccess() throws Exception{
+        int page = 1;
+        int size = 5;
+        Pageable pageable = PageRequest.of(page,size);
+
+        ProductResponseDto responseDto1 = ProductResponseDto.builder()
+            .id(23L)
+            .name("보트넥 긴팔티")
+            .brandName("릿킴")
+            .info("겨울 전용 기모 긴팔T 입니다.")
+            .price(new BigDecimal(36000))
+            .image("url")
+            .colorGroup("밝은")
+            .tags(List.of("기모", "긴팔T", "보트넥", "화이트"))
+            .stockQuantity(300)
+            .orderAmountFor30d(0L)
+            .avgReviewScore(0.0)
+            .sellerId(1L)
+            .build();
+        ProductResponseDto responseDto2 = ProductResponseDto.builder()
+            .id(24L)
+            .name("패딩 점퍼")
+            .brandName("릿킴")
+            .info("한겨울에도 입을 수 있는 패딩 점퍼 입니다.")
+            .price(new BigDecimal(36000))
+            .image("url")
+            .colorGroup("어두운")
+            .tags(List.of("한겨울", "패딩", "점퍼", "블랙"))
+            .stockQuantity(300)
+            .orderAmountFor30d(0L)
+            .avgReviewScore(0.0)
+            .sellerId(1L)
+            .build();
+        List<ProductResponseDto> responseDtoList = new ArrayList<>();
+        responseDtoList.add(responseDto1);
+        responseDtoList.add(responseDto2);
+
+        Page<ProductResponseDto> responseDtoPage = new PageImpl<>(responseDtoList,pageable,responseDtoList.size());
+
+        given(sellerProductService.getProductsBySeller(eq(1L),eq(page-1),eq(size))).willReturn(responseDtoPage);
+
+        mockMvc.perform(get("/api/seller/product/all").with(csrf()).param("page",
+                String.valueOf(page-1)).param("size", String.valueOf(size))).andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("판매자의 모든 상품 조회가 완료되었습니다."))
+            .andExpect(jsonPath("$.result[0].name").value("보트넥 긴팔티"))
+            .andExpect(jsonPath("$.result.length()").value(2));
+
+        verify(sellerProductService,times(1)).getProductsBySeller(eq(1L),eq(page),eq(size));
     }
 
 

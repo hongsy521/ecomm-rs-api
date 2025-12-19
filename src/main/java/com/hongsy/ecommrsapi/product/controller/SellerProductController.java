@@ -47,7 +47,7 @@ public class SellerProductController {
 
     @Operation(summary = "판매자 - 상품 삭제")
     @DeleteMapping("/delete/{productId}")
-    public ResponseEntity<CommonResponse> deleteProduct(@AuthenticationPrincipal UserDetailsImpl userDetails,@PathVariable(name = "productId")Long productId){
+    public ResponseEntity<CommonResponse> deleteProduct(@AuthenticationPrincipal UserDetailsImpl userDetails,@Positive @PathVariable(name = "productId")Long productId){
         sellerProductService.deleteProduct(userDetails.getId(),productId);
         return ResponseEntity.ok(new CommonResponse("상품 삭제가 완료되었습니다.",200,""));
     }
