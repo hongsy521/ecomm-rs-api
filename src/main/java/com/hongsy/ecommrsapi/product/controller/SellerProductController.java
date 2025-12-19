@@ -8,6 +8,7 @@ import com.hongsy.ecommrsapi.util.common.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class SellerProductController {
 
     @Operation(summary = "판매자 - 상품 편집")
     @PutMapping("/edit/{productId}")
-    public ResponseEntity<CommonResponse<ProductResponseDto>> editProduct(@AuthenticationPrincipal UserDetailsImpl userDetails,@PathVariable(name = "productId")Long productId,@Valid @RequestBody ProductRequestDto requestDto){
+    public ResponseEntity<CommonResponse<ProductResponseDto>> editProduct(@AuthenticationPrincipal UserDetailsImpl userDetails,@Positive @PathVariable(name = "productId")Long productId,@Valid @RequestBody ProductRequestDto requestDto){
         ProductResponseDto productResponseDto = sellerProductService.editProduct(userDetails.getId(),productId,requestDto);
         return ResponseEntity.ok(new CommonResponse<>("상품 편집이 완료되었습니다.",200,productResponseDto));
     }
