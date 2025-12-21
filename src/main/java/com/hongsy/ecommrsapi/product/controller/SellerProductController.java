@@ -8,11 +8,13 @@ import com.hongsy.ecommrsapi.util.common.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/seller/product")
 @RestController
 @RequiredArgsConstructor
+@Validated
 public class SellerProductController {
 
     private final SellerProductService sellerProductService;
@@ -54,7 +57,7 @@ public class SellerProductController {
 
     @Operation(summary = "판매자 - 전체 상품 조회")
     @GetMapping("/all")
-    public ResponseEntity<CommonResponse<Page<ProductResponseDto>>> getAllProductOfSeller(@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "8")int size){
+    public ResponseEntity<CommonResponse<Page<ProductResponseDto>>> getAllProductOfSeller(@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestParam(defaultValue = "1") @Min(1) int page, @RequestParam(defaultValue = "8")@Min(1) int size){
         Page<ProductResponseDto> productResponseDtos = sellerProductService.getProductsBySeller(userDetails.getId(),page-1,size);
         return ResponseEntity.ok(new CommonResponse<>("판매자의 모든 상품 조회가 완료되었습니다.",200,productResponseDtos));
     }

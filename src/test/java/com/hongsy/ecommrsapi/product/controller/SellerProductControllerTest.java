@@ -23,7 +23,6 @@ import com.hongsy.ecommrsapi.security.WithMockCustomUser;
 import com.hongsy.ecommrsapi.util.config.SecurityConfig;
 import com.hongsy.ecommrsapi.util.jwt.JwtTokenProvider;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -294,7 +292,7 @@ class SellerProductControllerTest {
 
     @Test
     @WithMockCustomUser(id = 1L, roles = {"판매자"})
-    @DisplayName("T4-(1). 판매자 상품 조회 성공 테스트 - 200 OK와 상품 목록을 반환한다.")
+    @DisplayName("T4-(1). 판매자 상품 전체 조회 성공 테스트 - 200 OK와 상품 목록을 반환한다.")
     void getAllProductOfSeller_ShouldSuccess() throws Exception {
         int requestPage = 1;
         int requestSize = 5;
@@ -331,6 +329,36 @@ class SellerProductControllerTest {
             .andExpect(jsonPath("$.result.content.length()").value(2));
 
         verify(sellerProductService, times(1)).getProductsBySeller(eq(1L), eq(expectedServicePage), eq(requestSize));
+    }
+
+    @Test
+    @WithMockCustomUser(id = 1L, roles = {"구매자"})
+    @DisplayName("T4-(2). 판매자 상품 전체 조회 실패 테스트 - 판매자 권한을 갖지 않은 경우 403 Forbidden를 반환하고 서비스를 호출하지 않는다.")
+    void getAllProductOfSeller_ShouldFail_WhenRoleIsInvalid() throws Exception {
+        mockMvc.perform(get("/api/seller/product/all").with(csrf()))
+            .andDo(print())
+            .andExpect(status().isForbidden());
+
+        verify(sellerProductService, never()).getProductsBySeller(eq(1L), any(int.class),any(int.class));
+    }
+
+    @Test
+    @WithMockCustomUser(id = 1L, roles = {"판매자"})
+    @DisplayName("T4-(3). 판매자 상품 전체 조회 실패 테스트 - 유효하지 않은 page, size을 param으로 넘긴 경우 400 Bad Request를 반환하고 서비스를 호출하지 않는다.")
+    void getAllProductOfSeller_ShouldFail_WhenParamIsInvalid() throws Exception {
+        int requestPage = 0;
+        int requestSize = -5;
+        int expectedServicePage = -1;
+
+        mockMvc.perform(get("/api/seller/product/all")
+                .with(csrf())
+                .param("page", String.valueOf(requestPage))
+                .param("size", String.valueOf(requestSize)))
+            .andDo(print())
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("must be greater than or equal to 1"));
+
+        verify(sellerProductService, never()).getProductsBySeller(eq(1L), eq(expectedServicePage), eq(requestSize));
     }
 
 

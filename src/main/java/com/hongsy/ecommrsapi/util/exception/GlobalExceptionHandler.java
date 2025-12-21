@@ -1,6 +1,8 @@
 package com.hongsy.ecommrsapi.util.exception;
 
 import com.hongsy.ecommrsapi.util.common.CommonErrorResponse;
+import com.hongsy.ecommrsapi.util.common.CommonResponse;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,5 +34,13 @@ public class GlobalExceptionHandler {
                 .statusCode(ex.getStatusCode().value())
                 .timestamp(LocalDateTime.now())
                 .build());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<CommonResponse<Void>> handleConstraintViolationException(ConstraintViolationException ex) {
+        String message = ex.getConstraintViolations().iterator().next().getMessage();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new CommonResponse<>(message, 400, null));
     }
 }
