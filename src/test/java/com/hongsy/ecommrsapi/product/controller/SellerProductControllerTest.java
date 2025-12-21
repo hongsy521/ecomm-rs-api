@@ -294,56 +294,43 @@ class SellerProductControllerTest {
 
     @Test
     @WithMockCustomUser(id = 1L, roles = {"판매자"})
-    @DisplayName("T4-(1). 판매자 상품 조회 성공 테스트 - 조회된 모든 상품과 200 OK를 반환한다.")
-    void getAllProductOfSeller_ShouldSuccess() throws Exception{
-        int page = 1;
-        int size = 5;
-        Pageable pageable = PageRequest.of(page,size);
+    @DisplayName("T4-(1). 판매자 상품 조회 성공 테스트 - 200 OK와 상품 목록을 반환한다.")
+    void getAllProductOfSeller_ShouldSuccess() throws Exception {
+        int requestPage = 1;
+        int requestSize = 5;
+        int expectedServicePage = 0;
 
         ProductResponseDto responseDto1 = ProductResponseDto.builder()
             .id(23L)
             .name("보트넥 긴팔티")
-            .brandName("릿킴")
-            .info("겨울 전용 기모 긴팔T 입니다.")
-            .price(new BigDecimal(36000))
-            .image("url")
-            .colorGroup("밝은")
-            .tags(List.of("기모", "긴팔T", "보트넥", "화이트"))
-            .stockQuantity(300)
-            .orderAmountFor30d(0L)
-            .avgReviewScore(0.0)
+            .price(new BigDecimal("36000"))
             .sellerId(1L)
             .build();
+
         ProductResponseDto responseDto2 = ProductResponseDto.builder()
             .id(24L)
             .name("패딩 점퍼")
-            .brandName("릿킴")
-            .info("한겨울에도 입을 수 있는 패딩 점퍼 입니다.")
-            .price(new BigDecimal(36000))
-            .image("url")
-            .colorGroup("어두운")
-            .tags(List.of("한겨울", "패딩", "점퍼", "블랙"))
-            .stockQuantity(300)
-            .orderAmountFor30d(0L)
-            .avgReviewScore(0.0)
+            .price(new BigDecimal("36000"))
             .sellerId(1L)
             .build();
-        List<ProductResponseDto> responseDtoList = new ArrayList<>();
-        responseDtoList.add(responseDto1);
-        responseDtoList.add(responseDto2);
 
-        Page<ProductResponseDto> responseDtoPage = new PageImpl<>(responseDtoList,pageable,responseDtoList.size());
+        List<ProductResponseDto> responseDtoList = List.of(responseDto1, responseDto2);
+        Page<ProductResponseDto> responseDtoPage = new PageImpl<>(responseDtoList, PageRequest.of(expectedServicePage, requestSize), responseDtoList.size());
 
-        given(sellerProductService.getProductsBySeller(eq(1L),eq(page-1),eq(size))).willReturn(responseDtoPage);
+        given(sellerProductService.getProductsBySeller(eq(1L), eq(expectedServicePage), eq(requestSize)))
+            .willReturn(responseDtoPage);
 
-        mockMvc.perform(get("/api/seller/product/all").with(csrf()).param("page",
-                String.valueOf(page-1)).param("size", String.valueOf(size))).andDo(print())
+        mockMvc.perform(get("/api/seller/product/all")
+                .with(csrf())
+                .param("page", String.valueOf(requestPage))
+                .param("size", String.valueOf(requestSize)))
+            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value("판매자의 모든 상품 조회가 완료되었습니다."))
-            .andExpect(jsonPath("$.result[0].name").value("보트넥 긴팔티"))
-            .andExpect(jsonPath("$.result.length()").value(2));
+            .andExpect(jsonPath("$.result.content[0].name").value("보트넥 긴팔티"))
+            .andExpect(jsonPath("$.result.content.length()").value(2));
 
-        verify(sellerProductService,times(1)).getProductsBySeller(eq(1L),eq(page),eq(size));
+        verify(sellerProductService, times(1)).getProductsBySeller(eq(1L), eq(expectedServicePage), eq(requestSize));
     }
 
 
