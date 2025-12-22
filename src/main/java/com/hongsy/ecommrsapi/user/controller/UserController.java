@@ -7,6 +7,7 @@ import com.hongsy.ecommrsapi.util.common.CommonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,14 +24,14 @@ public class UserController {
 
     @Operation(summary = "회원가입")
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse> createUser(@RequestBody SignupRequestDto signupRequestDto){
-        userService.createUser(signupRequestDto);
+    public ResponseEntity<CommonResponse> signup(@Valid @RequestBody SignupRequestDto signupRequestDto){
+        userService.signup(signupRequestDto);
         return ResponseEntity.ok(new CommonResponse<>("회원가입이 완료되었습니다.",200,""));
     }
 
     @Operation(summary = "로그인")
     @PostMapping("/login")
-    public ResponseEntity<CommonResponse> login(@RequestBody LoginRequestDto loginRequestDto,
+    public ResponseEntity<CommonResponse> login(@Valid @RequestBody LoginRequestDto loginRequestDto,
         HttpServletResponse response){
         String accessToken = userService.login(loginRequestDto,response);
         return ResponseEntity.ok(new CommonResponse<>("로그인이 완료되었습니다.",200,accessToken));

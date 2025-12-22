@@ -38,7 +38,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
 
     @Transactional
-    public void createUser(SignupRequestDto signupRequestDto) {
+    public void signup(SignupRequestDto signupRequestDto) {
         Optional<User> existingUser = userRepository.findByEmail(signupRequestDto.getEmail());
 
         if (existingUser.isPresent()) {

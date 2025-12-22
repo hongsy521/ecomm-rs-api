@@ -2,11 +2,14 @@ package com.hongsy.ecommrsapi.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import java.util.Set;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 public class SignupRequestDto {
 
     @Email(message = "유효하지 않은 이메일 형식입니다.")
@@ -20,7 +23,7 @@ public class SignupRequestDto {
     private String gender;
     private String phoneNumber;
     private String address;
-    @NotBlank(message = "역할을 입력해주세요.")
+    @NotEmpty(message = "역할을 하나 이상 입력해주세요.")
     private Set<String> roles;
 
 }
