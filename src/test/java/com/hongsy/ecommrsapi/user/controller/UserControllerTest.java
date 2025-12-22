@@ -48,7 +48,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("T1-(1). 회원가입 성공 테스트 - 회원가입 성공과 200 OK를 반환한다.")
-    void signup_ShouldSuccess() throws Exception {
+    void signup_Return200() throws Exception {
         SignupRequestDto requestDto = SignupRequestDto.builder()
             .email("test@test.com")
             .password("password1234")
@@ -70,7 +70,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("T1-(2). 회원가입 실패 테스트 - validation 오류 400 Bad Request를 반환하고 서비스를 호출하지 않는다.")
-    void signup_ShouldFail_WhenRequestIsInvalid() throws Exception {
+    void signup_Return400_WhenRequestIsInvalid() throws Exception {
         SignupRequestDto requestDto = SignupRequestDto.builder()
             .email("test@test.com")
             .password("password1234")
@@ -93,7 +93,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("T2-(1). 로그인 성공 테스트 - accessToken과 200 OK를 반환한다.")
-    void login_ShouldSuccess() throws Exception {
+    void login_Return200() throws Exception {
         String accessToken = "returnedAccessToken";
         LoginRequestDto requestDto = LoginRequestDto.builder()
             .email("test@test.com")
@@ -114,7 +114,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("T2-(2). 로그인 실패 테스트 - validation 오류 400 Bad Request를 반환하고 서비스를 호출하지 않는다.")
-    void login_ShouldFail_WhenRequestIsInvalid() throws Exception {
+    void login_Return400_WhenRequestIsInvalid() throws Exception {
         LoginRequestDto requestDto = LoginRequestDto.builder()
             .email("test.com")
             .password("password1234")
