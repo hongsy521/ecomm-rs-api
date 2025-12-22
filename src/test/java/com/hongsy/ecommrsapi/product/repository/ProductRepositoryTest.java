@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hongsy.ecommrsapi.product.entity.Product;
 import com.hongsy.ecommrsapi.user.entity.User;
+import com.hongsy.ecommrsapi.util.FullIntegrationTest;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @DisplayName("ProductRepository 슬라이스 테스트")
-class ProductRepositoryTest extends AbstractIntegrationTest {
+class ProductRepositoryTest extends FullIntegrationTest {
     @Autowired
     private ProductRepository productRepository;
 
