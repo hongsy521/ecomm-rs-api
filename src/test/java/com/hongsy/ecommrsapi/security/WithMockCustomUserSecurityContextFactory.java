@@ -22,8 +22,8 @@ public class WithMockCustomUserSecurityContextFactory implements
 
         User mockUser = User.builder()
             .id(customUser.id())
-            .name(customUser.username())
-            .email("mock@test.com")
+            .name(customUser.name())
+            .email(customUser.email())
             .password("mockuser123")
             .roles(Role.roleFromKorean(roleNames))
             .build();

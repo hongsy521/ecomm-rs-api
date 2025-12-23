@@ -10,7 +10,9 @@ public @interface WithMockCustomUser {
 
     long id() default 999L;
 
-    String username() default "testUser";
+    String name() default "testUser";
+
+    String email() default  "test@test.com";
 
     String[] roles() default {"구매자"};
 }

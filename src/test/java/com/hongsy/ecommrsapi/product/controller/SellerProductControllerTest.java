@@ -56,7 +56,7 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"판매자"})
     @DisplayName("T1-(1). 판매자 상품 등록 성공 테스트 - 등록 상품과 200 OK를 반환한다.")
-    void registerProduct_ShouldSuccess() throws Exception {
+    void registerProduct_Return200() throws Exception {
 
         // given 1
         ProductResponseDto mockResponseDto = ProductResponseDto.builder()
@@ -64,7 +64,7 @@ class SellerProductControllerTest {
             .name("보트넥 긴팔티")
             .brandName("릿킴")
             .info("겨울 전용 기모 긴팔T 입니다.")
-            .price(new BigDecimal(36000))
+            .price(BigDecimal.valueOf(36000))
             .image("url")
             .colorGroup("어두운")
             .tags(List.of("기모", "긴팔T", "보트넥", "블랙"))
@@ -79,7 +79,7 @@ class SellerProductControllerTest {
             .name("보트넥 긴팔티")
             .brandName("릿킴")
             .info("겨울 전용 기모 긴팔T 입니다.")
-            .price(new BigDecimal(36000))
+            .price(BigDecimal.valueOf(36000))
             .image("url")
             .colorGroup("어두운")
             .tags(List.of("기모", "긴팔T", "보트넥", "블랙"))
@@ -106,13 +106,13 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"판매자"})
     @DisplayName("T1-(2). 판매자 상품 등록 실패 테스트 - 상품명이 비어있는 경우 400 Bad Request를 반환하고 서비스를 호출하지 않는다.")
-    void registerProduct_ShouldFail_WhenRequestIsInvalid() throws Exception {
+    void registerProduct_Return400_WhenRequestIsInvalid() throws Exception {
 
         ProductRequestDto invalidRequestDto = ProductRequestDto.builder()
             .name("")
             .brandName("릿킴")
             .info("겨울 전용 기모 긴팔T 입니다.")
-            .price(new BigDecimal(36000))
+            .price(BigDecimal.valueOf(36000))
             .image("url")
             .colorGroup("어두운")
             .tags(List.of("기모", "긴팔T", "보트넥", "블랙"))
@@ -135,7 +135,7 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"구매자"})
     @DisplayName("T1-(3). 판매자 상품 등록 실패 테스트 - 판매자 권한을 갖지 않은 경우 403 Forbidden를 반환하고 서비스를 호출하지 않는다.")
-    void registerProduct_ShouldFail_WhenRoleIsInvalid() throws Exception {
+    void registerProduct_Return403_WhenRoleIsInvalid() throws Exception {
 
         mockMvc.perform(post("/api/seller/product/register").with(csrf())).andDo(print())
             .andExpect(status().isForbidden());
@@ -146,7 +146,7 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"판매자"})
     @DisplayName("T2-(1). 판매자 상품 수정 성공 테스트 - 수정 상품과 200 OK를 반환한다.")
-    void editProduct_ShouldSuccess() throws Exception {
+    void editProduct_Return200() throws Exception {
         Long productId = 25L;
 
         ProductResponseDto responseDto = ProductResponseDto.builder()
@@ -154,7 +154,7 @@ class SellerProductControllerTest {
             .name("보트넥 긴팔티")
             .brandName("릿킴")
             .info("겨울 전용 기모 긴팔T 입니다.")
-            .price(new BigDecimal(36000))
+            .price(BigDecimal.valueOf(36000))
             .image("url")
             .colorGroup("밝은")
             .tags(List.of("기모", "긴팔T", "보트넥", "화이트"))
@@ -168,7 +168,7 @@ class SellerProductControllerTest {
             .name("보트넥 긴팔티")
             .brandName("릿킴")
             .info("겨울 전용 기모 긴팔T 입니다.")
-            .price(new BigDecimal(36000))
+            .price(BigDecimal.valueOf(36000))
             .image("url")
             .colorGroup("밝은")
             .tags(List.of("기모", "긴팔T", "보트넥", "화이트"))
@@ -195,14 +195,14 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"판매자"})
     @DisplayName("T2-(2). 판매자 상품 수정 실패 테스트 - 상품명이 비어있는 경우 400 Bad Request를 반환하고 서비스를 호출하지 않는다.")
-    void editProduct_ShouldFail_WhenRequestIsInvalid() throws Exception {
+    void editProduct_Return400_WhenRequestIsInvalid() throws Exception {
         Long productId = 25L;
 
         ProductRequestDto invalidRequestDto = ProductRequestDto.builder()
             .name("")
             .brandName("릿킴")
             .info("겨울 전용 기모 긴팔T 입니다.")
-            .price(new BigDecimal(36000))
+            .price(BigDecimal.valueOf(36000))
             .image("url")
             .colorGroup("어두운")
             .tags(List.of("기모", "긴팔T", "보트넥", "블랙"))
@@ -225,7 +225,7 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"구매자"})
     @DisplayName("T2-(3). 판매자 상품 수정 실패 테스트 - 판매자 권한을 갖지 않은 경우 403 Forbidden를 반환하고 서비스를 호출하지 않는다.")
-    void editProduct_ShouldFail_WhenRoleIsInvalid() throws Exception {
+    void editProduct_Return403_WhenRoleIsInvalid() throws Exception {
         Long productId = 25L;
 
         mockMvc.perform(put("/api/seller/product/edit/{productId}", productId).with(csrf()))
@@ -239,7 +239,7 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"판매자"})
     @DisplayName("T2-(4). 판매자 상품 수정 실패 테스트 - 잘못된 productId를 넘긴 경우 400 Bad Request를 반환하고 서비스를 호출하지 않는다.")
-    void editProduct_ShouldFail_WhenIdIsNegative() throws Exception {
+    void editProduct_Return400_WhenIdIsNegative() throws Exception {
         Long invalidProductId = -999L;
 
         mockMvc.perform(
@@ -254,7 +254,7 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"판매자"})
     @DisplayName("T3-(1). 판매자 상품 삭제 성공 테스트 - 상품 삭제를 완료하고 200 OK를 반환한다.")
-    void deleteProduct_ShouldSuccess() throws Exception {
+    void deleteProduct_Return200() throws Exception {
         Long productId = 25L;
         mockMvc.perform(delete("/api/seller/product/delete/{productId}", productId).with(csrf()))
             .andDo(print()).andExpect(status().isOk())
@@ -266,7 +266,7 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"판매자"})
     @DisplayName("T3-(2). 판매자 상품 삭제 실패 테스트 - 잘못된 productId를 넘긴 경우 400 Bad Request를 반환하고 서비스를 호출하지 않는다.")
-    void deleteProduct_ShouldFail_WhenIdIsNegative() throws Exception {
+    void deleteProduct_Return400_WhenIdIsNegative() throws Exception {
         Long invalidProductId = -999L;
 
         mockMvc.perform(
@@ -280,7 +280,7 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"구매자"})
     @DisplayName("T3-(3). 판매자 상품 삭제 실패 테스트 - 판매자 권한을 갖지 않은 경우 403 Forbidden를 반환하고 서비스를 호출하지 않는다.")
-    void deleteProduct_ShouldFail_WhenRoleIsInvalid() throws Exception {
+    void deleteProduct_Return403_WhenRoleIsInvalid() throws Exception {
         Long productId = 25L;
 
         mockMvc.perform(delete("/api/seller/product/delete/{productId}", productId).with(csrf()))
@@ -293,7 +293,7 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"판매자"})
     @DisplayName("T4-(1). 판매자 상품 전체 조회 성공 테스트 - 200 OK와 상품 목록을 반환한다.")
-    void getAllProductOfSeller_ShouldSuccess() throws Exception {
+    void getAllProductOfSeller_Return200() throws Exception {
         int requestPage = 1;
         int requestSize = 5;
         int expectedServicePage = 0;
@@ -301,14 +301,14 @@ class SellerProductControllerTest {
         ProductResponseDto responseDto1 = ProductResponseDto.builder()
             .id(23L)
             .name("보트넥 긴팔티")
-            .price(new BigDecimal("36000"))
+            .price(BigDecimal.valueOf(36000))
             .sellerId(1L)
             .build();
 
         ProductResponseDto responseDto2 = ProductResponseDto.builder()
             .id(24L)
             .name("패딩 점퍼")
-            .price(new BigDecimal("36000"))
+            .price(BigDecimal.valueOf(36000))
             .sellerId(1L)
             .build();
 
@@ -334,7 +334,7 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"구매자"})
     @DisplayName("T4-(2). 판매자 상품 전체 조회 실패 테스트 - 판매자 권한을 갖지 않은 경우 403 Forbidden를 반환하고 서비스를 호출하지 않는다.")
-    void getAllProductOfSeller_ShouldFail_WhenRoleIsInvalid() throws Exception {
+    void getAllProductOfSeller_Return403_WhenRoleIsInvalid() throws Exception {
         mockMvc.perform(get("/api/seller/product/all").with(csrf()))
             .andDo(print())
             .andExpect(status().isForbidden());
@@ -345,7 +345,7 @@ class SellerProductControllerTest {
     @Test
     @WithMockCustomUser(id = 1L, roles = {"판매자"})
     @DisplayName("T4-(3). 판매자 상품 전체 조회 실패 테스트 - 유효하지 않은 page, size을 param으로 넘긴 경우 400 Bad Request를 반환하고 서비스를 호출하지 않는다.")
-    void getAllProductOfSeller_ShouldFail_WhenParamIsInvalid() throws Exception {
+    void getAllProductOfSeller_Return400_WhenParamIsInvalid() throws Exception {
         int requestPage = 0;
         int requestSize = -5;
         int expectedServicePage = -1;
