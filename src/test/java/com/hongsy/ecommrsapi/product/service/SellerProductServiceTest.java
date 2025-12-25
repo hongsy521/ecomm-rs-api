@@ -38,7 +38,7 @@ class SellerProductServiceTest {
 
     @Test
     @DisplayName("상품 등록 테스트 : 필수 정보를 포함한 상품 정보 등록 성공 확인")
-    void testRegisterProduct(){
+    void registerProduct_Success(){
         Long sellerId=24L;
 
         // given
