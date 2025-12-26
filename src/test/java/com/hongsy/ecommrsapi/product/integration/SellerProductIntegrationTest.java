@@ -11,12 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hongsy.ecommrsapi.product.dto.ProductRequestDto;
+import com.hongsy.ecommrsapi.product.entity.Product;
 import com.hongsy.ecommrsapi.product.repository.ProductRepository;
 import com.hongsy.ecommrsapi.user.dto.LoginRequestDto;
 import com.hongsy.ecommrsapi.user.dto.SignupRequestDto;
 import com.hongsy.ecommrsapi.user.repository.UserRepository;
 import com.hongsy.ecommrsapi.util.FullIntegrationTest;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -79,7 +81,8 @@ public class SellerProductIntegrationTest extends FullIntegrationTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(productRequestDto))).andDo(print())
             .andExpect(status().isOk()).andExpect(jsonPath("$.message").value("상품 등록이 완료되었습니다."));
+
+        List<Product> products = productRepository.findAll();
+        assertThat(products).anyMatch(p -> p.getName().equals("테스트 상품"));
     }
-
-
 }
