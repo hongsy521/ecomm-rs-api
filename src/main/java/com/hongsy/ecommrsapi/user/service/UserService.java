@@ -92,4 +92,13 @@ public class UserService {
 
         response.addCookie(cookie);
     }
+
+    public void logout() {
+    }
+
+    public void withdraw() {
+    }
+
+    public void reissueToken() {
+    }
 }
