@@ -17,8 +17,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,6 +38,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
     private final AuthenticationManager authenticationManager;
+    private final RedisTemplate<String,String> redisTemplate;
 
     @Transactional
     public void signup(SignupRequestDto signupRequestDto) {
@@ -93,7 +96,16 @@ public class UserService {
         response.addCookie(cookie);
     }
 
-    public void logout() {
+    public void logout(String accessToken,String refreshToken) {
+
+        if(refreshToken!=null){
+            String jti = jwtTokenProvider.getJti(refreshToken);
+            refreshTokenRedisRepository.deleteById(jti);
+        }
+        Long expiration = jwtTokenProvider.getExpiration(accessToken);
+        if(expiration>0){
+            redisTemplate.opsForValue().set("blacklist:"+accessToken,"logout",expiration, TimeUnit.MILLISECONDS);
+        }
     }
 
     public void withdraw() {

@@ -89,6 +89,13 @@ public class JwtTokenProvider {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
+    public Long getExpiration(String token){
+        Date expiration =  Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getExpiration();
+
+        long now = new Date().getTime();
+        return expiration.getTime()-now;
+    }
+
     // 토큰에서 인증 정보 조회
     public Authentication getAuthentication(String token) {
         // UserDetailsService를 통해 사용자 정보를 로드

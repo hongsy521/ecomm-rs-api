@@ -5,6 +5,7 @@ import com.hongsy.ecommrsapi.util.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String,String> redisTemplate;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -46,7 +48,7 @@ public class SecurityConfig {
 
             // UsernamePasswordAuthenticationFilter 이전에 JWT 인증 필터 실행
             .addFilterBefore(
-                new JwtAuthenticationFilter(jwtTokenProvider),
+                new JwtAuthenticationFilter(jwtTokenProvider,redisTemplate),
                 UsernamePasswordAuthenticationFilter.class
             );
 
