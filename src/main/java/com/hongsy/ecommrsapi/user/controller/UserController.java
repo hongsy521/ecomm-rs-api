@@ -5,6 +5,8 @@ import com.hongsy.ecommrsapi.user.dto.SignupRequestDto;
 import com.hongsy.ecommrsapi.user.service.UserService;
 import com.hongsy.ecommrsapi.util.UserDetailsImpl;
 import com.hongsy.ecommrsapi.util.common.CommonResponse;
+import com.hongsy.ecommrsapi.util.exception.CustomException;
+import com.hongsy.ecommrsapi.util.exception.ErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,13 +51,12 @@ public class UserController {
     @Operation(summary = "로그아웃")
     @PostMapping("/logout")
     public ResponseEntity<CommonResponse> logout(
-        @RequestHeader(value = "Authorization") String bearerToken,
+        @RequestHeader(value = HttpHeaders.AUTHORIZATION) String bearerToken,
         @CookieValue(value = "refreshToken", required = false) String refreshToken) {
-        String accessToken = null;
-
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            accessToken = bearerToken.substring(7);
+        if (bearerToken == null && !bearerToken.startsWith("Bearer ")) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
+        String accessToken = bearerToken.substring(7);
 
         userService.logout(accessToken, refreshToken);
 
@@ -72,10 +73,19 @@ public class UserController {
     }
 
     @Operation(summary = "회원탈퇴")
-    @PostMapping("/logout")
-    public ResponseEntity<CommonResponse> withdraw() {
-        userService.withdraw();
-        return ResponseEntity.ok(new CommonResponse<>("회원탈퇴가 완료되었습니다.", 200, ""));
+    @PostMapping("/withdraw")
+    public ResponseEntity<CommonResponse> withdraw(@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestHeader(value = HttpHeaders.AUTHORIZATION) String bearerToken,@CookieValue(value = "refreshToken", required = false) String refreshToken) {
+        String accessToken = bearerToken.substring(7);
+        userService.withdraw(userDetails.getId(),accessToken,refreshToken);
+        ResponseCookie deleteCookie = ResponseCookie.from("refreshToken", "")
+            .path("/")
+            .httpOnly(true)
+            .secure(true)
+            .maxAge(0)
+            .sameSite("None")
+            .build();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
+            .body(new CommonResponse<>("회원탈퇴가 완료되었습니다.", 200, ""));
     }
 
     @Operation(summary = "액세스토큰/리프레시토큰 재발행")

@@ -49,6 +49,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
     public static User createUser(SignupRequestDto signupRequestDto, Gender gender, String password,Set<Role> roles){
         User user = User.builder()
             .email(signupRequestDto.getEmail())
@@ -62,5 +65,9 @@ public class User {
             .build();
 
         return user;
+    }
+
+    public void editStatusByWithdrawn() {
+        this.status=UserStatus.WITHDRAWN;
     }
 }

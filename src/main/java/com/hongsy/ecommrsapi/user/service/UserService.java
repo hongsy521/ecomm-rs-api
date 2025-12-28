@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -96,6 +98,7 @@ public class UserService {
         response.addCookie(cookie);
     }
 
+    @Transactional
     public void logout(String accessToken,String refreshToken) {
 
         if(refreshToken!=null){
@@ -108,9 +111,34 @@ public class UserService {
         }
     }
 
-    public void withdraw() {
+    @Transactional
+    public void withdraw(Long userId,String accessToken,String refreshToken) {
+        User user = findById(userId);
+
+        // status 변경 후 softDelete
+        user.editStatusByWithdrawn();
+
+        if (refreshToken != null) {
+            try {
+                String jti = jwtTokenProvider.getJti(refreshToken);
+                refreshTokenRedisRepository.deleteById(jti);
+            } catch (Exception e) {
+                log.warn("회원탈퇴: 리프레시 토큰 삭제 실패 - {}", e.getMessage());
+            }
+        }
+        Long expiration = jwtTokenProvider.getExpiration(accessToken);
+        if(expiration>0){
+            redisTemplate.opsForValue().set("blacklist:"+accessToken,"withdrawn",expiration, TimeUnit.MILLISECONDS);
+        }
+
     }
 
     public void reissueToken() {
+    }
+
+    public User findById(Long userId){
+        return userRepository.findById(userId).orElseThrow(
+            ()-> new CustomException(ErrorCode.NOT_FOUND_USER)
+        );
     }
 }

@@ -27,7 +27,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         // 토큰 유효성 검사
         if (token != null && jwtTokenProvider.validateToken(token)) {
 
-            // 로그아웃한 경우 블랙리스트 AT
+            // 로그아웃/회원탈퇴한 경우 블랙리스트 AT
             boolean isBlacklisted = redisTemplate.hasKey("blacklist:" + token);
             if(!isBlacklisted){
                 // 토큰이 유효할 경우 Authentication 객체 생성
