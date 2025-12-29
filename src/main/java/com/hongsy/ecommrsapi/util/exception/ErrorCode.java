@@ -22,7 +22,8 @@ public enum ErrorCode {
     INCORRECT_SELLER(HttpStatus.FORBIDDEN,"판매자가 일치하지 않습니다."),
     INVALID_NUMBER(HttpStatus.BAD_REQUEST,"0 이상의 숫자를 입력해주세요."),
 
-    INVALID_TOKEN(HttpStatus.BAD_REQUEST,"유효하지 않은 토큰입니다.");
+    INVALID_TOKEN(HttpStatus.BAD_REQUEST,"유효하지 않은 토큰입니다."),
+    NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND,"토큰을 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

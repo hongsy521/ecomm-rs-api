@@ -40,7 +40,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
     private final AuthenticationManager authenticationManager;
-    private final RedisTemplate<String,String> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
     public void signup(SignupRequestDto signupRequestDto) {
@@ -99,46 +99,79 @@ public class UserService {
     }
 
     @Transactional
-    public void logout(String accessToken,String refreshToken) {
+    public void logout(String accessToken, String refreshToken) {
 
-        if(refreshToken!=null){
+        // RT가 null이거나 이미 만료된 유효하지 않은 토큰일 경우에는 redis에서 삭제해줄 필요 없음
+        if (refreshToken != null && jwtTokenProvider.validateToken(refreshToken)) {
             String jti = jwtTokenProvider.getJti(refreshToken);
             refreshTokenRedisRepository.deleteById(jti);
         }
-        Long expiration = jwtTokenProvider.getExpiration(accessToken);
-        if(expiration>0){
-            redisTemplate.opsForValue().set("blacklist:"+accessToken,"logout",expiration, TimeUnit.MILLISECONDS);
+
+        if (accessToken != null) {
+            Long expiration = jwtTokenProvider.getExpiration(accessToken);
+            if (expiration > 0) {
+                redisTemplate.opsForValue()
+                    .set("blacklist:" + accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+            }
         }
     }
 
     @Transactional
-    public void withdraw(Long userId,String accessToken,String refreshToken) {
+    public void withdraw(Long userId, String accessToken, String refreshToken) {
         User user = findById(userId);
 
         // status 변경 후 softDelete
         user.editStatusByWithdrawn();
 
-        if (refreshToken != null) {
-            try {
-                String jti = jwtTokenProvider.getJti(refreshToken);
-                refreshTokenRedisRepository.deleteById(jti);
-            } catch (Exception e) {
-                log.warn("회원탈퇴: 리프레시 토큰 삭제 실패 - {}", e.getMessage());
+        if (refreshToken != null && jwtTokenProvider.validateToken(refreshToken)) {
+            String jti = jwtTokenProvider.getJti(refreshToken);
+            refreshTokenRedisRepository.deleteById(jti);
+        }
+        if (accessToken != null) {
+            Long expiration = jwtTokenProvider.getExpiration(accessToken);
+            if (expiration > 0) {
+                redisTemplate.opsForValue()
+                    .set("blacklist:" + accessToken, "withdrawn", expiration,
+                        TimeUnit.MILLISECONDS);
             }
         }
-        Long expiration = jwtTokenProvider.getExpiration(accessToken);
-        if(expiration>0){
-            redisTemplate.opsForValue().set("blacklist:"+accessToken,"withdrawn",expiration, TimeUnit.MILLISECONDS);
+    }
+
+    @Transactional
+    public String reissueToken(String refreshToken, HttpServletResponse response) {
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
+        String jti = jwtTokenProvider.getJti(refreshToken);
+        RefreshToken originalRefreshToken = refreshTokenRedisRepository.findById(jti).orElseThrow(
+            () -> new CustomException(ErrorCode.NOT_FOUND_TOKEN)
+        );
 
+        String userId = jwtTokenProvider.getStringUserId(refreshToken);
+        User user = findById(Long.valueOf(userId));
+
+        List<String> roles = user.getRoles().stream()
+            .map(roleEnum -> roleEnum.name())
+            .collect(Collectors.toList());
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(user.getId(), roles);
+
+        // RTR
+        String newRefreshTokenString = jwtTokenProvider.createRefreshToken(user.getId());
+
+        String newJti = jwtTokenProvider.getJti(newRefreshTokenString);
+        RefreshToken newRefreshToken = new RefreshToken(newJti, user.getId(),
+            newRefreshTokenString);
+        refreshTokenRedisRepository.delete(originalRefreshToken);
+        refreshTokenRedisRepository.save(newRefreshToken);
+        addRefreshTokenToCookie(newRefreshTokenString, response);
+
+        return "Bearer " + newAccessToken;
     }
 
-    public void reissueToken() {
-    }
-
-    public User findById(Long userId){
+    public User findById(Long userId) {
         return userRepository.findById(userId).orElseThrow(
-            ()-> new CustomException(ErrorCode.NOT_FOUND_USER)
+            () -> new CustomException(ErrorCode.NOT_FOUND_USER)
         );
     }
 }
