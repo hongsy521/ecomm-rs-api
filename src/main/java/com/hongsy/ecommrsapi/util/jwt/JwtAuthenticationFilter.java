@@ -32,8 +32,12 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         try {
             if (token != null && jwtTokenProvider.validateToken(token)) {
 
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                if(redisTemplate.hasKey("blacklist:"+token)){
+                    request.setAttribute("exception", "로그아웃된 토큰입니다.");
+                }else {
+                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
         } catch (ExpiredJwtException e) {
             request.setAttribute("exception", "토큰이 만료되었습니다. 다시 로그인해주세요.");
