@@ -1,5 +1,9 @@
 package com.hongsy.ecommrsapi.util.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.IOException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,7 +21,7 @@ import org.springframework.web.filter.GenericFilterBean;
 public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisTemplate<String,String> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -25,32 +29,25 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         // 요청 헤더에서 JWT 토큰 추출
         String token = jwtTokenProvider.resolveToken((HttpServletRequest) request);
 
-        // 토큰 유효성 검사
-        if (token != null) {
+        try {
+            if (token != null && jwtTokenProvider.validateToken(token)) {
 
-            if(!jwtTokenProvider.validateToken(token)){
-                sendErrorResponse((HttpServletResponse) response, "유효하지 않거나 만료된 토큰입니다.");
-                return;
+                Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+        } catch (ExpiredJwtException e) {
+            request.setAttribute("exception", "토큰이 만료되었습니다. 다시 로그인해주세요.");
+        } catch (SignatureException | MalformedJwtException e) {
+            request.setAttribute("exception", "유효하지 않은 토큰입니다.");
 
-            // 로그아웃/회원탈퇴한 경우 블랙리스트 AT
-            if(redisTemplate.hasKey("blacklist:" + token)){
-                sendErrorResponse((HttpServletResponse) response, "이미 로그아웃된 토큰입니다.");
-                return;
-            }
+        } catch (UnsupportedJwtException e) {
+            request.setAttribute("exception", "지원하지 않는 토큰 형식입니다.");
 
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (Exception e) {
+            request.setAttribute("exception", "토큰 검증 중 오류가 발생했습니다.");
         }
 
         // 다음 필터로 요청 전달
         chain.doFilter(request, response);
-    }
-
-    private void sendErrorResponse(HttpServletResponse response, String message)
-        throws IOException, java.io.IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write("{\"error\": \"" + message + "\"}");
     }
 }

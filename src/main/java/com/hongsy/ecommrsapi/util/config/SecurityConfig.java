@@ -1,5 +1,6 @@
 package com.hongsy.ecommrsapi.util.config;
 
+import com.hongsy.ecommrsapi.util.common.CustomAuthenticationEntryPoint;
 import com.hongsy.ecommrsapi.util.jwt.JwtAuthenticationFilter;
 import com.hongsy.ecommrsapi.util.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String,String> redisTemplate;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -50,7 +52,10 @@ public class SecurityConfig {
             .addFilterBefore(
                 new JwtAuthenticationFilter(jwtTokenProvider,redisTemplate),
                 UsernamePasswordAuthenticationFilter.class
-            );
+            )
+
+            .exceptionHandling(exception-> exception.authenticationEntryPoint(
+                customAuthenticationEntryPoint));
 
         return http.build();
     }
