@@ -5,6 +5,7 @@ import static com.hongsy.ecommrsapi.product.entity.QProduct.product;
 import com.hongsy.ecommrsapi.product.dto.SearchRequestDto;
 import com.hongsy.ecommrsapi.product.entity.Product;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +33,15 @@ public class ProductCustomRepositoryImpl implements
         // 키워드 포함
         if(StringUtils.hasText(requestDto.getKeyword())){
             BooleanBuilder keywordOr = new BooleanBuilder();
-            keywordOr.or(product.name.contains(requestDto.getKeyword()));
-            keywordOr.or(product.brandName.contains(requestDto.getKeyword()));
-            keywordOr.or(product.info.contains(requestDto.getKeyword()));
-            keywordOr.or(product.colorGroup.contains(requestDto.getKeyword()));
+            keywordOr.or(product.name.containsIgnoreCase(requestDto.getKeyword()));
+            keywordOr.or(product.brandName.containsIgnoreCase(requestDto.getKeyword()));
+            keywordOr.or(product.info.containsIgnoreCase(requestDto.getKeyword()));
+            keywordOr.or(product.colorGroup.containsIgnoreCase(requestDto.getKeyword()));
+            keywordOr.or(Expressions.booleanTemplate(
+                "function('jsonb_exists', {0}, {1}) = true",
+                product.tags,
+                requestDto.getKeyword()
+            ));
 
             builder.and(keywordOr);
         }
