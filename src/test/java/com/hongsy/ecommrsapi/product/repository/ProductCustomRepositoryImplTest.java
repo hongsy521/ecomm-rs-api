@@ -111,19 +111,34 @@ class ProductCustomRepositoryImplTest extends FullIntegrationTest {
     }
 
     @Test
-    @DisplayName("복합 조건 검색: 가격과 키워드 조건을 모두 만족하는 상품만 조회")
+    @DisplayName("정렬 조건 검색 : 주문량 많은순, 평점 높은순, 좋아요 많은순, 가격 낮은순, 가격 높은순 등 정렬 조건 추가하여 조회")
+    void findProductsBySearchCondition_SortBy(){
+        createProduct("상품A", "브랜드A", "재고있음", 30000L, "어두운", List.of("태그1", "태그2"), 10L, 300, 3.0,
+            4);
+        createProduct("상품B", "브랜드B", "재고있음", 50000L, "어두운", List.of("태그3", "태그4"), 30L, 300, 4.0,
+            1);
+
+        SearchRequestDto requestDto = SearchRequestDto.builder().sortType("sales").build();
+        List<Product> products = productRepository.findProductsBySearchCondition(requestDto);
+
+        assertThat(products).hasSize(2);
+        assertThat(products.get(0).getName()).isEqualTo("상품B");
+    }
+
+    @Test
+    @DisplayName("복합 조건 검색: 가격과 키워드 정렬 조건을 모두 만족하는 상품만 조회")
     void findProductsBySearchCondition_Complex() {
-        createProduct("상품A", "브랜드A", "재고없음", 20000L, "어두운", List.of("태그1", "태그2"), 30L, 0, 4.0, 4);
-        createProduct("상품B", "브랜드B", "재고있음", 30000L, "밝은", List.of("태그3", "태그4"), 30L, 300, 4.0, 4);
+        createProduct("상품A", "브랜드A", "재고없음", 20000L, "어두운", List.of("태그1", "태그2"), 20L, 0, 4.0, 4);
+        createProduct("상품B", "브랜드B", "재고있음", 30000L, "밝은", List.of("태그3", "태그4"), 10L, 300, 2.0, 4);
         createProduct("상품C", "브랜드C", "재고있음", 40000L, "어두운", List.of("태그5", "태그6"), 30L, 300, 4.0, 4);
         createProduct("상품D", "브랜드D", "재고있음", 50000L, "밝은", List.of("태그7", "태그8"), 30L, 300, 4.0, 4);
 
         SearchRequestDto requestDto = SearchRequestDto.builder().keyword("밝은")
-            .minPrice(BigDecimal.valueOf(30000L)).maxPrice(BigDecimal.valueOf(40000L)).build();
+            .minPrice(BigDecimal.valueOf(30000L)).maxPrice(BigDecimal.valueOf(50000L)).sortType("review").build();
 
         List<Product> products = productRepository.findProductsBySearchCondition(requestDto);
 
-        assertThat(products).hasSize(1);
-        assertThat(products.get(0).getName()).isEqualTo("상품B");
+        assertThat(products).hasSize(2);
+        assertThat(products.get(0).getName()).isEqualTo("상품D");
     }
 }
