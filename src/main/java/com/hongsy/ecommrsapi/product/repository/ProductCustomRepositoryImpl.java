@@ -5,6 +5,7 @@ import static com.hongsy.ecommrsapi.product.entity.QProduct.product;
 import com.hongsy.ecommrsapi.product.dto.SearchRequestDto;
 import com.hongsy.ecommrsapi.product.entity.Product;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -46,7 +47,33 @@ public class ProductCustomRepositoryImpl implements
             builder.and(keywordOr);
         }
 
-        return jpaQueryFactory.selectFrom(product).where(builder).fetch();
+        return jpaQueryFactory.selectFrom(product).where(builder).orderBy(getOrderSpecifier(requestDto.getSortType())).fetch();
+    }
+
+    private OrderSpecifier<?> getOrderSpecifier(String sortType) {
+        if (!StringUtils.hasText(sortType)) {
+            return product.id.desc();
+        }
+
+        switch (sortType) {
+            case "sales":
+                // 주문량 많은 순
+                return product.orderAmountFor30d.desc().nullsLast();
+            case "review":
+                // 평점 높은 순
+                return product.avgReviewScore.desc().nullsLast();
+            case "like":
+                // 좋아요 많은 순
+                return product.likeCount.desc().nullsLast();
+            case "price_asc":
+                // 가격 낮은 순
+                return product.price.asc();
+            case "price_desc":
+                // 가격 높은 순
+                return product.price.desc();
+            default:
+                return product.id.desc();
+        }
     }
 
 }

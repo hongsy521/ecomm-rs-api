@@ -10,5 +10,6 @@ public class SearchRequestDto {
     private String keyword;
     private BigDecimal maxPrice;
     private BigDecimal minPrice;
+    private String sortType;
 
 }
