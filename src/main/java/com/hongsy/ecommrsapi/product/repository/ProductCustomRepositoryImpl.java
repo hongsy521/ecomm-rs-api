@@ -3,10 +3,12 @@ package com.hongsy.ecommrsapi.product.repository;
 import static com.hongsy.ecommrsapi.product.entity.QProduct.product;
 
 import com.hongsy.ecommrsapi.product.dto.SearchRequestDto;
+import com.hongsy.ecommrsapi.product.dto.SimpleProductResponseDto;
 import com.hongsy.ecommrsapi.product.entity.ColorGroup;
 import com.hongsy.ecommrsapi.product.entity.Product;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -18,22 +20,24 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class ProductCustomRepositoryImpl implements
     ProductCustomRepository {
+
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Product> findProductsBySearchCondition(SearchRequestDto requestDto) {
+    public List<SimpleProductResponseDto> findProductsBySearchCondition(
+        SearchRequestDto requestDto) {
         BooleanBuilder builder = new BooleanBuilder();
 
         // 재고 0 이상
         builder.and(product.stockQuantity.gt(0));
 
         // 가격 범위 조건
-        if(requestDto.getMinPrice()!=null&&requestDto.getMaxPrice()!=null){
-            builder.and(product.price.between(requestDto.getMinPrice(),requestDto.getMaxPrice()));
+        if (requestDto.getMinPrice() != null && requestDto.getMaxPrice() != null) {
+            builder.and(product.price.between(requestDto.getMinPrice(), requestDto.getMaxPrice()));
         }
 
         // 키워드 포함
-        if(StringUtils.hasText(requestDto.getKeyword())){
+        if (StringUtils.hasText(requestDto.getKeyword())) {
             BooleanBuilder keywordOr = new BooleanBuilder();
             keywordOr.or(product.name.containsIgnoreCase(requestDto.getKeyword()));
             keywordOr.or(product.brandName.containsIgnoreCase(requestDto.getKeyword()));
@@ -51,7 +55,10 @@ public class ProductCustomRepositoryImpl implements
             builder.and(keywordOr);
         }
 
-        return jpaQueryFactory.selectFrom(product).where(builder).orderBy(getOrderSpecifier(requestDto.getSortType())).fetch();
+        return jpaQueryFactory.select(
+                Projections.constructor(SimpleProductResponseDto.class, product.id, product.name,
+                    product.brandName, product.price, product.image, product.tags)).from(product)
+            .where(builder).orderBy(getOrderSpecifier(requestDto.getSortType())).fetch();
     }
 
     private OrderSpecifier<?> getOrderSpecifier(String sortType) {

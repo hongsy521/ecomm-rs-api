@@ -3,6 +3,7 @@ package com.hongsy.ecommrsapi.product.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hongsy.ecommrsapi.product.dto.SearchRequestDto;
+import com.hongsy.ecommrsapi.product.dto.SimpleProductResponseDto;
 import com.hongsy.ecommrsapi.product.entity.ColorGroup;
 import com.hongsy.ecommrsapi.product.entity.Product;
 import com.hongsy.ecommrsapi.user.entity.Gender;
@@ -77,7 +78,7 @@ class ProductCustomRepositoryImplTest extends FullIntegrationTest {
         createProduct("상품B", "브랜드B", "재고없음", 30000L, "블랙", List.of("태그1", "태그2"), 30L, 0, 4.0, 4);
 
         SearchRequestDto requestDto = SearchRequestDto.builder().build();
-        List<Product> products = productRepository.findProductsBySearchCondition(requestDto);
+        List<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto);
 
         assertThat(products).hasSize(1);
         assertThat(products.get(0).getName()).isEqualTo("상품A");
@@ -93,7 +94,7 @@ class ProductCustomRepositoryImplTest extends FullIntegrationTest {
 
         SearchRequestDto requestDto = SearchRequestDto.builder()
             .minPrice(BigDecimal.valueOf(20000L)).maxPrice(BigDecimal.valueOf(40000L)).build();
-        List<Product> products = productRepository.findProductsBySearchCondition(requestDto);
+        List<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto);
 
         assertThat(products).hasSize(1);
         assertThat(products.get(0).getName()).isEqualTo("상품A");
@@ -108,7 +109,7 @@ class ProductCustomRepositoryImplTest extends FullIntegrationTest {
             4);
 
         SearchRequestDto requestDto = SearchRequestDto.builder().keyword("태그1").build();
-        List<Product> products = productRepository.findProductsBySearchCondition(requestDto);
+        List<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto);
 
         assertThat(products).hasSize(1);
     }
@@ -122,7 +123,7 @@ class ProductCustomRepositoryImplTest extends FullIntegrationTest {
             1);
 
         SearchRequestDto requestDto = SearchRequestDto.builder().sortType("sales").build();
-        List<Product> products = productRepository.findProductsBySearchCondition(requestDto);
+        List<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto);
 
         assertThat(products).hasSize(2);
         assertThat(products.get(0).getName()).isEqualTo("상품B");
@@ -139,7 +140,7 @@ class ProductCustomRepositoryImplTest extends FullIntegrationTest {
         SearchRequestDto requestDto = SearchRequestDto.builder().keyword("White")
             .minPrice(BigDecimal.valueOf(30000L)).maxPrice(BigDecimal.valueOf(50000L)).sortType("review").build();
 
-        List<Product> products = productRepository.findProductsBySearchCondition(requestDto);
+        List<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto);
 
         assertThat(products).hasSize(2);
         assertThat(products.get(0).getName()).isEqualTo("상품D");
