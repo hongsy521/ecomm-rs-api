@@ -1,12 +1,11 @@
 package com.hongsy.ecommrsapi.user.entity;
 
 import com.hongsy.ecommrsapi.user.dto.SignupRequestDto;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "site_user")
@@ -45,8 +45,8 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String address;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
+    @Type(JsonBinaryType.class)
+    @Column(name = "roles", columnDefinition = "jsonb")
     private Set<Role> roles;
 
     @Enumerated(EnumType.STRING)
