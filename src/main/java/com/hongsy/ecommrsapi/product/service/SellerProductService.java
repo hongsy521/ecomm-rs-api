@@ -2,6 +2,7 @@ package com.hongsy.ecommrsapi.product.service;
 
 import com.hongsy.ecommrsapi.product.dto.ProductRequestDto;
 import com.hongsy.ecommrsapi.product.dto.ProductResponseDto;
+import com.hongsy.ecommrsapi.product.entity.ColorGroup;
 import com.hongsy.ecommrsapi.product.entity.Product;
 import com.hongsy.ecommrsapi.product.repository.ProductRepository;
 import com.hongsy.ecommrsapi.util.exception.CustomException;
@@ -21,7 +22,8 @@ public class SellerProductService {
 
     @Transactional
     public ProductResponseDto registerProduct(Long sellerId, ProductRequestDto requestDto) {
-        Product product = Product.registerProduct(sellerId,requestDto);
+        ColorGroup colorGroup = ColorGroup.colorGroupFromKorean(requestDto.getColorGroup());
+        Product product = Product.registerProduct(sellerId,requestDto,colorGroup);
         productRepository.save(product);
 
         return new ProductResponseDto(product);
@@ -35,7 +37,8 @@ public class SellerProductService {
         if(product.getSellerId()!=sellerId){
             throw new CustomException(ErrorCode.INCORRECT_SELLER);
         }
-        product.editProduct(requestDto);
+        ColorGroup colorGroup = ColorGroup.colorGroupFromKorean(requestDto.getColorGroup());
+        product.editProduct(requestDto,colorGroup);
         productRepository.save(product);
 
         return new ProductResponseDto(product);

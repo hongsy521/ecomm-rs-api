@@ -8,6 +8,8 @@ import com.hongsy.ecommrsapi.util.exception.ErrorCode;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -47,7 +49,8 @@ public class Product extends BaseTimeEntity {
     private String image;
 
     @Column(name = "color_group")
-    private String colorGroup;
+    @Enumerated(EnumType.STRING)
+    private ColorGroup colorGroup;
 
     @Type(JsonBinaryType.class)
     @Column(name = "tags", columnDefinition = "jsonb")
@@ -72,14 +75,14 @@ public class Product extends BaseTimeEntity {
     @Column(name = "like_count")
     private Integer likeCount;
 
-    public static Product registerProduct(Long sellerId, ProductRequestDto requestDto){
+    public static Product registerProduct(Long sellerId, ProductRequestDto requestDto,ColorGroup colorGroup){
         Product product = Product.builder()
             .name(requestDto.getName())
             .brandName(requestDto.getBrandName())
             .info(requestDto.getInfo())
             .price(requestDto.getPrice())
             .image(requestDto.getImage())
-            .colorGroup(requestDto.getColorGroup())
+            .colorGroup(colorGroup)
             .tags(requestDto.getTags())
             .orderAmountFor30d(0L)
             .stockQuantity(requestDto.getStockQuantity())
@@ -91,7 +94,7 @@ public class Product extends BaseTimeEntity {
         return product;
     }
 
-    public void editProduct(ProductRequestDto requestDto) {
+    public void editProduct(ProductRequestDto requestDto,ColorGroup colorGroup) {
         if(requestDto.getPrice().compareTo(BigDecimal.ZERO)<0 || requestDto.getStockQuantity().compareTo(0)<0){
             throw new CustomException(ErrorCode.INVALID_NUMBER);
         }
@@ -100,7 +103,7 @@ public class Product extends BaseTimeEntity {
         this.info= requestDto.getInfo();
         this.price=requestDto.getPrice();
         this.image= requestDto.getImage();
-        this.colorGroup=requestDto.getColorGroup();
+        this.colorGroup=colorGroup;
         this.tags=requestDto.getTags();
         this.stockQuantity= requestDto.getStockQuantity();
     }

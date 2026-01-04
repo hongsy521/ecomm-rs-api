@@ -3,6 +3,7 @@ package com.hongsy.ecommrsapi.product.repository;
 import static com.hongsy.ecommrsapi.product.entity.QProduct.product;
 
 import com.hongsy.ecommrsapi.product.dto.SearchRequestDto;
+import com.hongsy.ecommrsapi.product.entity.ColorGroup;
 import com.hongsy.ecommrsapi.product.entity.Product;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
@@ -37,7 +38,10 @@ public class ProductCustomRepositoryImpl implements
             keywordOr.or(product.name.containsIgnoreCase(requestDto.getKeyword()));
             keywordOr.or(product.brandName.containsIgnoreCase(requestDto.getKeyword()));
             keywordOr.or(product.info.containsIgnoreCase(requestDto.getKeyword()));
-            keywordOr.or(product.colorGroup.containsIgnoreCase(requestDto.getKeyword()));
+            ColorGroup matchedColor = ColorGroup.findByKeyword(requestDto.getKeyword());
+            if (matchedColor != null) {
+                keywordOr.or(product.colorGroup.eq(matchedColor));
+            }
             keywordOr.or(Expressions.booleanTemplate(
                 "function('jsonb_exists', {0}, {1}) = true",
                 product.tags,

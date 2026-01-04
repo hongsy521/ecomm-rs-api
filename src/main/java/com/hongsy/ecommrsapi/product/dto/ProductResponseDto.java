@@ -31,7 +31,7 @@ public class ProductResponseDto {
         this.info= product.getInfo();
         this.price=product.getPrice();
         this.image= product.getImage();
-        this.colorGroup=product.getColorGroup();
+        this.colorGroup=product.getColorGroup().getKoreanName();
         this.tags=product.getTags();
         this.stockQuantity= product.getStockQuantity();
         this.orderAmountFor30d= product.getOrderAmountFor30d();

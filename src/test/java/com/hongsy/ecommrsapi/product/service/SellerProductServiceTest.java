@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 
 import com.hongsy.ecommrsapi.product.dto.ProductRequestDto;
 import com.hongsy.ecommrsapi.product.dto.ProductResponseDto;
+import com.hongsy.ecommrsapi.product.entity.ColorGroup;
 import com.hongsy.ecommrsapi.product.entity.Product;
 import com.hongsy.ecommrsapi.product.repository.ProductRepository;
 import com.hongsy.ecommrsapi.util.exception.CustomException;
@@ -48,12 +49,14 @@ class SellerProductServiceTest {
             .info("겨울 전용 기모 긴팔T 입니다.")
             .price(new BigDecimal(36000))
             .image("url")
-            .colorGroup("검정색")
+            .colorGroup("블랙")
             .tags(List.of("기모", "긴팔T", "보트넥", "블랙"))
             .stockQuantity(300)
             .build();
 
-        Product mockProduct = Product.registerProduct(sellerId,requestDto);
+        ColorGroup colorGroup = ColorGroup.colorGroupFromKorean(requestDto.getColorGroup());
+
+        Product mockProduct = Product.registerProduct(sellerId,requestDto,colorGroup);
 
         // stubbing
         given(productRepository.save(any(Product.class))).willReturn(mockProduct);
@@ -86,7 +89,7 @@ class SellerProductServiceTest {
             .info("겨울 전용 기모 긴팔T 입니다.")
             .price(new BigDecimal(36000))
             .image("url")
-            .colorGroup("검정색")
+            .colorGroup(ColorGroup.BLACK)
             .tags(List.of("기모", "긴팔T", "보트넥", "블랙"))
             .orderAmountFor30d(0L)
             .stockQuantity(300)
@@ -102,7 +105,7 @@ class SellerProductServiceTest {
             .info("한겨울에도 입을 수 있는 패딩 점퍼 입니다.")
             .price(new BigDecimal(123000))
             .image("url")
-            .colorGroup("카키색")
+            .colorGroup("블랙")
             .tags(List.of("한겨울", "패딩", "점퍼", "카키색","따뜻함"))
             .stockQuantity(500)
             .build();
@@ -235,8 +238,8 @@ class SellerProductServiceTest {
         int size=10;
         Pageable pageable = PageRequest.of(page,size);
 
-        Product product1 = Product.builder().name("상품1").build();
-        Product product2 = Product.builder().name("상품2").build();
+        Product product1 = Product.builder().name("상품1").colorGroup(ColorGroup.BLACK).build();
+        Product product2 = Product.builder().name("상품2").colorGroup(ColorGroup.BLACK).build();
         List<Product> productList = List.of(product1,product2);
 
         Page<Product> mockProductPage = new PageImpl<>(productList,pageable,productList.size());
@@ -249,7 +252,7 @@ class SellerProductServiceTest {
         assertThat(responseDtos.getTotalElements()).isEqualTo(2);
         assertThat(responseDtos.getContent()).hasSize(2);
         assertThat(responseDtos.getContent().get(0).getName()).isEqualTo("상품1");
-        assertThat(responseDtos.getContent().get(1).getName()).isEqualTo("상품2");
+        assertThat(responseDtos.getContent().get(1).getColorGroup()).isEqualTo("블랙");
 
         verify(productRepository,times(1)).findAllBySellerId(sellerId,pageable);
     }
