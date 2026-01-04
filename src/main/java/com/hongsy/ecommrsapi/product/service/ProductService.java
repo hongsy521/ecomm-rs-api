@@ -5,14 +5,16 @@ import com.hongsy.ecommrsapi.product.dto.SearchRequestDto;
 import com.hongsy.ecommrsapi.product.dto.SimpleProductResponseDto;
 import com.hongsy.ecommrsapi.product.entity.Product;
 import com.hongsy.ecommrsapi.product.repository.ProductRepository;
+import com.hongsy.ecommrsapi.util.LogExecutionTime;
 import com.hongsy.ecommrsapi.util.exception.CustomException;
 import com.hongsy.ecommrsapi.util.exception.ErrorCode;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -26,10 +28,11 @@ public class ProductService {
         return new ProductResponseDto(product);
     }
 
+    @LogExecutionTime
     public List<SimpleProductResponseDto> getProductsBySearchCondition(SearchRequestDto searchRequestDto){
-        List<Product> products = productRepository.findProductsBySearchCondition(searchRequestDto);
+        List<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(searchRequestDto);
 
-        return products.stream().map(SimpleProductResponseDto::new).collect(Collectors.toList());
+        return products;
     }
 
     @Transactional
