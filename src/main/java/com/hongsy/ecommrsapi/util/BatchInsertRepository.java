@@ -22,7 +22,7 @@ public class BatchInsertRepository {
 
     @Transactional
     public void saveAllUsers(List<User> users) {
-        String sql = "INSERT INTO site_user (email, password, name, age, gender, phone_number,address, roles, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO site_user (email, password, name, age, gender, phone_number,address, roles, status) VALUES (?, ?, ?, ?, ?, ?, ?,?::jsonb,?)";
 
         jdbcTemplate.batchUpdate(sql, users, 1000, (ps, user) -> {
             ps.setString(1, user.getEmail());
@@ -54,7 +54,7 @@ public class BatchInsertRepository {
             ps.setString(3, product.getInfo());
             ps.setBigDecimal(4, product.getPrice());
             ps.setString(5, product.getImage());
-            ps.setString(6, product.getColorGroup());
+            ps.setString(6, product.getColorGroup().name());
             try {
                 String tagsJson = objectMapper.writeValueAsString(product.getTags());
                 ps.setString(7, tagsJson);
