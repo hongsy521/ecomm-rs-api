@@ -5,7 +5,6 @@ import static com.hongsy.ecommrsapi.product.entity.QProduct.product;
 import com.hongsy.ecommrsapi.product.dto.SearchRequestDto;
 import com.hongsy.ecommrsapi.product.dto.SimpleProductResponseDto;
 import com.hongsy.ecommrsapi.product.entity.ColorGroup;
-import com.hongsy.ecommrsapi.product.entity.Product;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -13,6 +12,9 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -24,8 +26,27 @@ public class ProductCustomRepositoryImpl implements
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<SimpleProductResponseDto> findProductsBySearchCondition(
-        SearchRequestDto requestDto) {
+    public Slice<SimpleProductResponseDto> findProductsBySearchCondition(
+        SearchRequestDto requestDto, Pageable pageable) {
+
+        int pageSize = pageable.getPageSize();
+
+        List<SimpleProductResponseDto> content = jpaQueryFactory.select(
+                Projections.constructor(SimpleProductResponseDto.class, product.id, product.name,
+                    product.brandName, product.price, product.image, product.tags)).from(product)
+            .where(createSearchConditions(requestDto))
+            .orderBy(getOrderSpecifier(requestDto.getSortType())).offset(pageable.getOffset())
+            .limit(pageSize + 1).fetch();
+
+        boolean hasNext = false;
+        if (content.size() > pageSize) {
+            content.remove(pageSize);
+            hasNext = true;
+        }
+        return new SliceImpl<>(content, pageable, hasNext);
+    }
+
+    private BooleanBuilder createSearchConditions(SearchRequestDto requestDto) {
         BooleanBuilder builder = new BooleanBuilder();
 
         // 재고 0 이상
@@ -55,10 +76,7 @@ public class ProductCustomRepositoryImpl implements
             builder.and(keywordOr);
         }
 
-        return jpaQueryFactory.select(
-                Projections.constructor(SimpleProductResponseDto.class, product.id, product.name,
-                    product.brandName, product.price, product.image, product.tags)).from(product)
-            .where(builder).orderBy(getOrderSpecifier(requestDto.getSortType())).fetch();
+        return builder;
     }
 
     private OrderSpecifier<?> getOrderSpecifier(String sortType) {

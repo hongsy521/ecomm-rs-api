@@ -19,6 +19,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -78,10 +81,12 @@ class ProductCustomRepositoryImplTest extends FullIntegrationTest {
         createProduct("상품B", "브랜드B", "재고없음", 30000L, "블랙", List.of("태그1", "태그2"), 30L, 0, 4.0, 4);
 
         SearchRequestDto requestDto = SearchRequestDto.builder().build();
-        List<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto);
+        Pageable pageable = PageRequest.of(0,20);
+        Slice<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto,pageable);
 
-        assertThat(products).hasSize(1);
-        assertThat(products.get(0).getName()).isEqualTo("상품A");
+        assertThat(products.getContent()).hasSize(1);
+        assertThat(products.getContent().get(0).getName()).isEqualTo("상품A");
+        assertThat(products.hasNext()).isEqualTo(false);
     }
 
     @Test
@@ -94,10 +99,11 @@ class ProductCustomRepositoryImplTest extends FullIntegrationTest {
 
         SearchRequestDto requestDto = SearchRequestDto.builder()
             .minPrice(BigDecimal.valueOf(20000L)).maxPrice(BigDecimal.valueOf(40000L)).build();
-        List<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto);
+        Pageable pageable = PageRequest.of(0,20);
+        Slice<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto,pageable);
 
-        assertThat(products).hasSize(1);
-        assertThat(products.get(0).getName()).isEqualTo("상품A");
+        assertThat(products.getContent()).hasSize(1);
+        assertThat(products.getContent().get(0).getName()).isEqualTo("상품A");
     }
 
     @Test
@@ -109,9 +115,10 @@ class ProductCustomRepositoryImplTest extends FullIntegrationTest {
             4);
 
         SearchRequestDto requestDto = SearchRequestDto.builder().keyword("태그1").build();
-        List<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto);
+        Pageable pageable = PageRequest.of(0,20);
+        Slice<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto,pageable);
 
-        assertThat(products).hasSize(1);
+        assertThat(products.getContent()).hasSize(1);
     }
 
     @Test
@@ -123,10 +130,11 @@ class ProductCustomRepositoryImplTest extends FullIntegrationTest {
             1);
 
         SearchRequestDto requestDto = SearchRequestDto.builder().sortType("sales").build();
-        List<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto);
+        Pageable pageable = PageRequest.of(0,20);
+        Slice<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto,pageable);
 
-        assertThat(products).hasSize(2);
-        assertThat(products.get(0).getName()).isEqualTo("상품B");
+        assertThat(products.getContent()).hasSize(2);
+        assertThat(products.getContent().get(0).getName()).isEqualTo("상품B");
     }
 
     @Test
@@ -140,9 +148,10 @@ class ProductCustomRepositoryImplTest extends FullIntegrationTest {
         SearchRequestDto requestDto = SearchRequestDto.builder().keyword("White")
             .minPrice(BigDecimal.valueOf(30000L)).maxPrice(BigDecimal.valueOf(50000L)).sortType("review").build();
 
-        List<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto);
+        Pageable pageable = PageRequest.of(0,20);
+        Slice<SimpleProductResponseDto> products = productRepository.findProductsBySearchCondition(requestDto,pageable);
 
-        assertThat(products).hasSize(2);
-        assertThat(products.get(0).getName()).isEqualTo("상품D");
+        assertThat(products.getContent()).hasSize(2);
+        assertThat(products.getContent().get(0).getName()).isEqualTo("상품D");
     }
 }

@@ -9,10 +9,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Product API",description = "상품 API")
@@ -31,8 +35,8 @@ public class ProductController {
 
     @Operation(summary = "일반 사용자 - 상품 전체 조회 및 검색 조회")
     @GetMapping
-    ResponseEntity<CommonResponse<List<SimpleProductResponseDto>>> getProductsBySearchCondition(SearchRequestDto searchRequestDto){
-        List<SimpleProductResponseDto> productResponseDtos = productService.getProductsBySearchCondition(searchRequestDto);
+    ResponseEntity<CommonResponse<Slice<SimpleProductResponseDto>>> getProductsBySearchCondition(SearchRequestDto searchRequestDto,@RequestParam(defaultValue = "1")int page,@RequestParam(defaultValue = "20") int size){
+        Slice<SimpleProductResponseDto> productResponseDtos = productService.getProductsBySearchCondition(searchRequestDto,page-1,size);
         return ResponseEntity.ok(new CommonResponse<>("상품 조회가 완료되었습니다.",200,productResponseDtos));
     }
 

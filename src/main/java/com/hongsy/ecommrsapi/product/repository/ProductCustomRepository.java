@@ -2,9 +2,11 @@ package com.hongsy.ecommrsapi.product.repository;
 
 import com.hongsy.ecommrsapi.product.dto.SearchRequestDto;
 import com.hongsy.ecommrsapi.product.dto.SimpleProductResponseDto;
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 public interface ProductCustomRepository {
 
-    List<SimpleProductResponseDto> findProductsBySearchCondition(SearchRequestDto searchRequestDto);
+    Slice<SimpleProductResponseDto> findProductsBySearchCondition(SearchRequestDto searchRequestDto,
+        Pageable pageable);
 }
