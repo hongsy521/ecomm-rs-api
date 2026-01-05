@@ -63,6 +63,9 @@ dependencies {
     // elasticSearch
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
+    // aop
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
 }
 
 tasks.named('test') {
