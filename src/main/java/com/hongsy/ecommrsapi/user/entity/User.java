@@ -62,6 +62,7 @@ public class User {
             .phoneNumber(signupRequestDto.getPhoneNumber())
             .address(signupRequestDto.getAddress())
             .roles(roles)
+            .status(UserStatus.ACTIVE)
             .build();
 
         return user;

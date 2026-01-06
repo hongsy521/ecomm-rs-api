@@ -4,7 +4,7 @@ import com.hongsy.ecommrsapi.util.exception.CustomException;
 import com.hongsy.ecommrsapi.util.exception.ErrorCode;
 
 public enum Gender {
-    Male("남성"),Female("여성");
+    MALE("남성"),FEMALE("여성");
 
     private final String genderKorean;
 

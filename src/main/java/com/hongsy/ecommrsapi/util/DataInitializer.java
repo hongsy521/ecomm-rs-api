@@ -28,56 +28,73 @@ public class DataInitializer implements CommandLineRunner {
     private final Random random = new Random();
     private final PasswordEncoder passwordEncoder;
 
-    private static final int USER_COUNT = 10_000;
-    private static final int PRODUCT_COUNT = 50_000;
+    private static final int TARGET_USER_COUNT = 10_000;
+    private static final int TARGET_PRODUCT_COUNT = 500_000;
+
+    // 메모리 보호(OOM 방지)를 위한 배치 사이즈
+    private static final int BATCH_SIZE = 10_000;
 
     @Override
     public void run(String... args) throws Exception {
         try {
-        /*System.out.println("데이터 초기화 및 ID 리셋 시작");
+            Integer savedUserCount = jdbcTemplate.queryForObject("SELECT count(*) FROM site_user", Integer.class);
+            Integer savedProductCount = jdbcTemplate.queryForObject("SELECT count(*) FROM product", Integer.class);
 
-        jdbcTemplate.execute("TRUNCATE TABLE site_user RESTART IDENTITY CASCADE");
-        System.out.println("데이터 초기화 완료 (ID 1부터 시작)");*/
+            int currentUserCount = savedUserCount != null ? savedUserCount : 0;
+            int currentProductCount = savedProductCount != null ? savedProductCount : 0;
 
-            Integer userCount = jdbcTemplate.queryForObject("SELECT count(*) FROM site_user",
-                Integer.class);
+            System.out.println("현재 사용자 수 : " + currentUserCount);
+            System.out.println("현재 상품 수 : " + currentProductCount);
 
-            if (userCount != null && userCount > 0) {
-                System.out.println("이미 데이터가 존재하므로 초기화를 건너뜁니다.");
+            if (currentUserCount >= TARGET_USER_COUNT && currentProductCount >= TARGET_PRODUCT_COUNT) {
+                System.out.println("목표 데이터 수량 달성. 초기화 건너뜀.");
                 return;
             }
 
-            System.out.println("대용량 더미 데이터 생성 시작");
+            System.out.println("부족한 데이터 추가 적재 시작...");
             long startTime = System.currentTimeMillis();
 
-            List<User> users = createDummyUsers(USER_COUNT);
-            batchInsertRepository.saveAllUsers(users);
-            System.out.println("User " + USER_COUNT + "명 저장 완료");
+            while (currentUserCount < TARGET_USER_COUNT) {
+                int start = currentUserCount + 1;
+                int end = Math.min(currentUserCount + BATCH_SIZE, TARGET_USER_COUNT);
 
-            List<Product> products = createDummyProducts(PRODUCT_COUNT, USER_COUNT);
-            batchInsertRepository.saveAllProducts(products);
-            System.out.println("Product " + PRODUCT_COUNT + "개 저장 완료");
+                List<User> users = createDummyUsers(start, end);
+                batchInsertRepository.saveAllUsers(users);
+
+                System.out.printf("User %d ~ %d 저장 완료\n", start, end);
+                currentUserCount = end;
+            }
+
+            while (currentProductCount < TARGET_PRODUCT_COUNT) {
+                int start = currentProductCount + 1;
+                int end = Math.min(currentProductCount + BATCH_SIZE, TARGET_PRODUCT_COUNT);
+
+                List<Product> products = createDummyProducts(start, end, TARGET_USER_COUNT);
+                batchInsertRepository.saveAllProducts(products);
+
+                System.out.printf("Product %d ~ %d 저장 완료\n", start, end);
+                currentProductCount = end;
+            }
 
             long endTime = System.currentTimeMillis();
-            System.out.printf("전체 데이터 적재 완료 소요 시간: %dms\n", (endTime - startTime));
+            System.out.printf("데이터 적재 완료! 소요 시간: %dms\n", (endTime - startTime));
+
         } catch (Exception e) {
-            System.err.println("=========================================");
             System.err.println("데이터 초기화 중 에러 발생");
-            System.err.println("=========================================");
-            e.printStackTrace(); // 에러의 원인과 발생 위치 출력
-            System.err.println("=========================================");
+            e.printStackTrace();
         }
     }
 
-    private List<User> createDummyUsers(int count) {
+    private List<User> createDummyUsers(int startIndex, int endIndex) {
         List<User> list = new ArrayList<>();
-        for (int i = 1; i <= count; i++) {
+
+        for (int i = startIndex; i <= endIndex; i++) {
             User user = User.builder()
                 .email("user" + i + "@example.com")
                 .password(passwordEncoder.encode("password123"))
                 .name("사용자" + i)
                 .age(20 + (i % 30))
-                .gender(i % 2 == 0 ? Gender.Male : Gender.Female)
+                .gender(i % 2 == 0 ? Gender.MALE : Gender.FEMALE)
                 .phoneNumber("010-1234-5678")
                 .address("서울시 강남구 역삼동 " + i + "번지")
                 .roles(Set.of(Role.ROLE_SELLER, Role.ROLE_BUYER))
@@ -88,15 +105,13 @@ public class DataInitializer implements CommandLineRunner {
         return list;
     }
 
-    private List<Product> createDummyProducts(int count, int maxSellerId) {
+    private List<Product> createDummyProducts(int startIndex, int endIndex, int maxSellerId) {
         List<Product> list = new ArrayList<>();
-
         String[] keywords = {"가을", "겨울", "신상", "특가", "럭셔리", "캐주얼", "오버핏", "슬림핏", "캠핑", "여행"};
         String[] brands = {"나이키", "아디다스", "폴로", "구찌", "자라", "H&M", "유니클로", "무신사"};
-        for (int i = 1; i <= count; i++) {
-            Long randomSellerId = (long) (random.nextInt(maxSellerId) + 1);
 
-            // 랜덤 키워드 조합으로 상품명 생성 (검색 품질 테스트용)
+        for (int i = startIndex; i <= endIndex; i++) {
+            Long randomSellerId = (long) (random.nextInt(maxSellerId) + 1);
             String brand = brands[random.nextInt(brands.length)];
             String keyword = keywords[random.nextInt(keywords.length)];
 
