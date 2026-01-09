@@ -1,3 +1,5 @@
+grafana/grafana.db
+grafana/*-journal
 .env
 HELP.md
 .gradle
