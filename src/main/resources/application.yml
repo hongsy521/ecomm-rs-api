@@ -54,3 +54,9 @@ springdoc:
     disable-swagger-default-url: true
     operations-sorter: alpha
     tags-sorter: alpha
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, beans, httptrace, info, metrics, prometheus
