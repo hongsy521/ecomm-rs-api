@@ -80,6 +80,8 @@ services:
         - GF_AUTH_BASIC_ENABLED=false
       volumes:
         - ./grafana_data:/var/lib/grafana
+        - ./provisioning/datasources:/etc/grafana/provisioning/datasources
+        - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards
       depends_on:
         - influxdb
       networks:

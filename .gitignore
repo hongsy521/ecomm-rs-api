@@ -1,5 +1,7 @@
 grafana/grafana.db
 grafana/*-journal
+grafana_data/
+provisioning/
 .env
 HELP.md
 .gradle
