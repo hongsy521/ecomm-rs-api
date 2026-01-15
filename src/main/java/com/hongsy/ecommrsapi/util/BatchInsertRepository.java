@@ -61,11 +61,11 @@ public class BatchInsertRepository {
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Tags convert error", e);
             }
-            ps.setLong(8, 0L); // 초기 주문량 0
+            ps.setLong(8, product.getOrderAmountFor30d());
             ps.setInt(9, product.getStockQuantity());
-            ps.setDouble(10, 0.0); // 초기 평점 0.0
+            ps.setDouble(10, product.getAvgReviewScore());
             ps.setLong(11, product.getSellerId());
-            ps.setInt(12, 0); // 초기 좋아요 0
+            ps.setInt(12, product.getLikeCount());
         });
     }
 }

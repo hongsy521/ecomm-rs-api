@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 public class CountScheduler {
     private final ProductService productService;
 
-    @Scheduled(cron = "0 0/10 * * * *")
+    /*@Scheduled(cron = "0 0/10 * * * *")
     public void runSynchronizeLikeCounts(){
         productService.synchronizeLikeCounts();
-    }
+    }*/
 
 }

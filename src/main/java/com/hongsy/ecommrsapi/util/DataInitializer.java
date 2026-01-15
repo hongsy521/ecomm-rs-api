@@ -107,27 +107,42 @@ public class DataInitializer implements CommandLineRunner {
 
     private List<Product> createDummyProducts(int startIndex, int endIndex, int maxSellerId) {
         List<Product> list = new ArrayList<>();
-        String[] keywords = {"가을", "겨울", "신상", "특가", "럭셔리", "캐주얼", "오버핏", "슬림핏", "캠핑", "여행"};
-        String[] brands = {"나이키", "아디다스", "폴로", "구찌", "자라", "H&M", "유니클로", "무신사"};
+
+        // 더 다양한 키워드/브랜드
+        String[] keywords = {
+            "가을", "겨울", "봄", "여름", "신상", "특가", "럭셔리", "캐주얼",
+            "오버핏", "슬림핏", "캠핑", "여행", "데일리", "포멀", "스트릿",
+            "빈티지", "미니멀", "하이틴", "러블리", "청순", "힙한무드"
+        };
+        String[] brands = {
+            "나이키", "아디다스", "폴로", "구찌", "자라", "H&M", "유니클로", "무신사",
+            "스투시", "컨버스", "뉴발란스", "마르지엘라", "코스", "에잇세컨즈", "카파"
+        };
 
         for (int i = startIndex; i <= endIndex; i++) {
             Long randomSellerId = (long) (random.nextInt(maxSellerId) + 1);
             String brand = brands[random.nextInt(brands.length)];
             String keyword = keywords[random.nextInt(keywords.length)];
 
+            // 가격, 좋아요, 리뷰, 주문량 랜덤
+            BigDecimal price = BigDecimal.valueOf(10_000 + (random.nextInt(90) * 1_000L));
+            long orderAmountFor30d = random.nextInt(5_000);      // 0 ~ 4999
+            double avgReviewScore = Math.round((2.5 + random.nextDouble() * 2.5) * 10.0) / 10.0; // 2.5~5.0, 소수점1자리
+            int likeCount = random.nextInt(10_000);              // 0 ~ 9999
+
             Product product = Product.builder()
                 .name(brand + " " + keyword + " 상품 " + i)
                 .brandName(brand)
                 .info("이 상품은 " + keyword + " 테스트용 상품입니다. 번호: " + i)
-                .price(BigDecimal.valueOf(10000 + (i % 100) * 1000))
+                .price(price)
                 .image("https://example.com/images/product_" + i + ".jpg")
                 .colorGroup(ColorGroup.getRandomColor())
                 .stockQuantity(random.nextInt(500))
                 .sellerId(randomSellerId)
                 .tags(List.of(keyword, "인기", "추천"))
-                .orderAmountFor30d(0L)
-                .avgReviewScore(0.0)
-                .likeCount(0)
+                .orderAmountFor30d(orderAmountFor30d)
+                .avgReviewScore(avgReviewScore)
+                .likeCount(likeCount)
                 .build();
 
             list.add(product);

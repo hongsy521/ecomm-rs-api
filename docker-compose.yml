@@ -79,7 +79,7 @@ services:
         - GF_AUTH_ANONYMOUS_ENABLED=true
         - GF_AUTH_BASIC_ENABLED=false
       volumes:
-        - ./grafana:/var/lib/grafana
+        - ./grafana_data:/var/lib/grafana
       depends_on:
         - influxdb
       networks:
@@ -117,3 +117,5 @@ volumes:
   mongodb_data:
   redis_data:
   es_data:
+  grafana_data:
+  influxdb-data:
