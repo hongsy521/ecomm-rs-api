@@ -12,6 +12,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - k6-grafana-net
     restart: always
 
   mongodb:
@@ -92,12 +94,22 @@ services:
     ports:
       - "9090:9090"
     networks:
-      - calendars_network
+      - k6-grafana-net
+
+  postgres-exporter:
+    image: wrouesnel/postgres_exporter:v0.8.0
+    platform: linux/amd64
+    container_name: postgres_exporter
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/ecommerce_db?sslmode=disable
+    ports:
+      - "9187:9187"
+    networks:
+      - k6-grafana-net
+    restart: unless-stopped
 
 networks:
   k6-grafana-net:
-    driver: bridge
-  calendars_network:
     driver: bridge
 
 volumes:
