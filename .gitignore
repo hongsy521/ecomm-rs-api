@@ -2,6 +2,7 @@ grafana/grafana.db
 grafana/*-journal
 grafana_data/
 provisioning/
+influxdb-data/
 .env
 HELP.md
 .gradle
