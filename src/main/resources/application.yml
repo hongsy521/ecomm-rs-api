@@ -19,9 +19,9 @@ spring:
         format_sql: true
 
   elasticsearch:
-    client:
-      rest:
-        uris: ${SPRING_ELASTICSEARCH_URIS}
+    uris: ${SPRING_ELASTICSEARCH_URIS}
+    socket-timeout: 10s
+    connection-timeout: 5s
 
 ---
 
